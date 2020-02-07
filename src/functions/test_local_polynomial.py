@@ -32,3 +32,29 @@ def test_local_polynomial_y0_hat(setup_local_polynomial, expected_local_polynomi
         bandwidth=setup_local_polynomial["bandwidth"],
     )
     assert np.isclose(calc_y0_hat, expected_local_polynomial["y0_hat"])
+
+
+def test_local_polynomial_positive_bandwidth(
+    setup_local_polynomial, expected_local_polynomial
+):
+    with pytest.raises(ValueError):
+        y_hat_local_polynomial(
+            x=setup_local_polynomial["x"],
+            y=setup_local_polynomial["y"],
+            x0=setup_local_polynomial["x0"],
+            degree=setup_local_polynomial["degree"],
+            bandwidth=-1,
+        )
+
+
+def test_local_polynomial_positive_degree(
+    setup_local_polynomial, expected_local_polynomial
+):
+    with pytest.raises(ValueError):
+        y_hat_local_polynomial(
+            x=setup_local_polynomial["x"],
+            y=setup_local_polynomial["y"],
+            x0=setup_local_polynomial["x0"],
+            degree=-2,
+            bandwidth=setup_local_polynomial["bandwidth"],
+        )

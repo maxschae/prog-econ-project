@@ -15,19 +15,26 @@ def y_hat_local_polynomial(x, y, x0, degree=1, bandwidth=1):
         y0_hat (float): Predicted value of the dependent variable at x0.
     """
 
-    # Assign weights to observations.
+    if bandwidth <= 0:
+        raise ValueError("The specified bandwidth must be positive.")
+    if degree <= 0:
+        raise ValueError(
+            "The specified degree for local polynomial regression must be positive."
+        )
+    else:
+        pass
+
     data_points = np.abs(x - x0) / bandwidth
     weights = np.zeros_like(data_points)
     index = np.where(np.abs(data_points) <= 1)
     weights[index] = 1 - np.abs(data_points[index])
 
-    # Filter out datapoints with zero weights.
+    # Consider only datapoints with positive weight.
     index2 = np.where(np.abs(weights) > 1e-10)[0]
     weights = weights[index2]
     x = x[index2]
     y = y[index2]
 
-    # Compute predicted value y0.
     sqrt_weights = np.sqrt(weights)
     X = x[:, None] ** np.arange(degree + 1)
     X0 = x0 ** np.arange(degree + 1)
