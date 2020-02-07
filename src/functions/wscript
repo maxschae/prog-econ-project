@@ -2,4 +2,9 @@
 
 
 def build(ctx):
-    pass
+    ctx(
+        features="run_py_script",
+        source="local_polynomial.py",
+        deps=[ctx.path_to(ctx, "FUNCTIONS", "test_local_polynomial.py")],
+        name="local_polynomial",
+    )
