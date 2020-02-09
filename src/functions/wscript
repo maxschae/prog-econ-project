@@ -3,8 +3,19 @@
 
 def build(ctx):
     ctx(
+        features="run_py_script", source="local_polynomial.py", name="local_polynomial",
+    )
+
+    ctx(
         features="run_py_script",
-        source="local_polynomial.py",
-        deps=[ctx.path_to(ctx, "FUNCTIONS", "test_local_polynomial.py")],
-        name="local_polynomial",
+        source="test_local_polynomial.py",
+        deps=[ctx.path_to(ctx, "FUNCTIONS", "local_polynomial.py")],
+        name="test_local_polynomial",
+    )
+
+    ctx(
+        features="run_py_script",
+        source="cross_validation.py",
+        deps=[ctx.path_to(ctx, "FUNCTIONS", "local_polynomial.py")],
+        name="cross_validation",
     )
