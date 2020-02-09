@@ -58,3 +58,16 @@ def test_local_polynomial_positive_degree(
             degree=-2,
             bandwidth=setup_local_polynomial["bandwidth"],
         )
+
+
+def test_local_polynomial_empty_kernel(
+    setup_local_polynomial, expected_local_polynomial
+):
+    with pytest.raises(ValueError):
+        y_hat_local_polynomial(
+            x=setup_local_polynomial["x"],
+            y=setup_local_polynomial["y"],
+            x0=6,
+            degree=setup_local_polynomial["degree"],
+            bandwidth=setup_local_polynomial["bandwidth"],
+        )
