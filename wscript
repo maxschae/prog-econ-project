@@ -14,6 +14,7 @@ def set_project_paths(ctx):
     pp["PROJECT_ROOT"] = "."
     pp["IN_DATA"] = "src/original_data/"
     pp["FUNCTIONS"] = "src/functions"
+    pp["SIMULATION_STUDY"] = "src/simulation_study"
     pp["LIBRARY"] = "src/library"
     pp["BLD"] = ""
     pp["OUT_DATA"] = f"{out}/out/data"
