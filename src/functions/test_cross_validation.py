@@ -1,0 +1,59 @@
+import numpy as np
+import pandas as pd
+import pytest
+from cross_validation import cross_validation
+
+
+@pytest.fixture
+def setup_cross_validation():
+    out = {}
+    out["data"] = pd.DataFrame(
+        data=[
+            [2, 3],
+            [1, 4],
+            [1.75, 3],
+            [1.5, 3.5],
+            [3, 6],
+            [3.4, 5],
+            [3.5, 6],
+            [3.8, 5.5],
+            [4, 7],
+        ],
+        columns=["run_var", "y"],
+        index=range(9),
+    )
+    out["cutoff"] = 2.5
+    out["h_grid"] = np.array([1.0, 0.5], dtype=float)
+    out["degree"] = 1
+
+    return out
+
+
+def test_cross_validation_positive_h_grid(setup_cross_validation):
+    with pytest.raises(ValueError):
+        cross_validation(
+            data=setup_cross_validation["data"],
+            cutoff=setup_cross_validation["cutoff"],
+            h_grid=np.array([-1.0, 1.0], dtype=float),
+            degree=setup_cross_validation["degree"],
+        )
+
+
+def test_cross_validation_cutoff_within_range(setup_cross_validation):
+    with pytest.raises(ValueError):
+        cross_validation(
+            data=setup_cross_validation["data"],
+            cutoff=-3,
+            h_grid=setup_cross_validation["h_grid"],
+            degree=setup_cross_validation["degree"],
+        )
+
+
+def test_cross_validation_positive_h_opt(setup_cross_validation):
+    calc_h_opt = cross_validation(
+        data=setup_cross_validation["data"],
+        cutoff=setup_cross_validation["cutoff"],
+        h_grid=setup_cross_validation["h_grid"],
+        degree=setup_cross_validation["degree"],
+    )
+    assert calc_h_opt > 0

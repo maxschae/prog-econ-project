@@ -19,3 +19,10 @@ def build(ctx):
         deps=[ctx.path_to(ctx, "FUNCTIONS", "local_polynomial.py")],
         name="cross_validation",
     )
+
+    ctx(
+        features="run_py_script",
+        source="test_cross_validation.py",
+        deps=[ctx.path_to(ctx, "FUNCTIONS", "cross_validation.py")],
+        name="test_cross_validation",
+    )
