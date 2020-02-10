@@ -11,6 +11,7 @@ def y_hat_local_polynomial(x, y, x0, degree=1, bandwidth=1):
         x0 (float): Value at which local polynomial regression is calculated.
         degree (float): Degree of polynomial used in local regression.
         bandwidth (float): Range of data the kernel uses to assign weights.
+
     Returns:
         y0_hat (float): Predicted value of the dependent variable at x0.
     """
@@ -26,8 +27,8 @@ def y_hat_local_polynomial(x, y, x0, degree=1, bandwidth=1):
 
     data_points = np.abs(x - x0) / bandwidth
     weights = np.zeros_like(data_points)
-    index = np.where(np.abs(data_points) <= 1)
-    weights[index] = 1 - np.abs(data_points[index])
+    index = np.where(data_points <= 1)
+    weights[index] = 1 - data_points[index]
 
     if np.all(weights == 0):
         raise ValueError("The Kernel does not include any data.")
@@ -35,7 +36,7 @@ def y_hat_local_polynomial(x, y, x0, degree=1, bandwidth=1):
         pass
 
     # Consider only datapoints with positive weight.
-    index2 = np.where(np.abs(weights) > 1e-10)[0]
+    index2 = np.where(weights > 0)[0]
     weights = weights[index2]
     x = x[index2]
     y = y[index2]
