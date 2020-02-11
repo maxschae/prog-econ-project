@@ -26,9 +26,21 @@ def rule_of_thumb(data, cutoff):
     data_left = np.array(data[data["x"] <= cutoff])
     data_right = np.array(data[data["x"] > cutoff])
 
+    if data_left.size == 0 or data_right.size == 0:
+        raise ValueError(
+            "The cutoff must lie within the range of the running variable."
+        )
+    else:
+        pass
+
     # Step 1.
     sigma_x = pd.DataFrame.var(data, axis=0)[0]
     h_ref = 1.84 * np.sqrt(sigma_x) * n ** (-1 / 5)
+
+    if h_ref <= 0:
+        raise ValueError("The computed reference bandwidth is not positive.")
+    else:
+        pass
 
     data_left_in_bw = data_left[data_left[:, 0] >= cutoff - h_ref]
     data_right_in_bw = data_right[data_right[:, 0] <= cutoff + h_ref]
@@ -38,10 +50,23 @@ def rule_of_thumb(data, cutoff):
     y_ave_right_in_bw = np.sum(data_right_in_bw, axis=0)[1] / n_right_in_bw
 
     f_hat = (n_left_in_bw + n_right_in_bw) / (n * h_ref)
+
+    if f_hat <= 0:
+        raise ValueError("The computed density function estimate is not positive.")
+    else:
+        pass
+
     sigma_hat = (
         np.sum((data_left_in_bw[:, 1] - y_ave_left_in_bw) ** 2)
         + np.sum((data_right_in_bw[:, 1] - y_ave_right_in_bw) ** 2)
     ) / (n_left_in_bw + n_right_in_bw)
+
+    if sigma_hat <= 0:
+        raise ValueError(
+            "The computed conditional variance of the running variable is not positive."
+        )
+    else:
+        pass
 
     # Step 2.
     median_x_left = np.median(data_left, axis=0)[0]
@@ -73,6 +98,11 @@ def rule_of_thumb(data, cutoff):
         * (sigma_hat / (f_hat * np.max([m3_hat ** 2, 0.01]))) ** (1 / 7)
         * n_right_in_bw
     )
+
+    if h_ref_left <= 0 or h_ref_right <= 0:
+        raise ValueError("The computed reference bandwidth is not positive.")
+    else:
+        pass
 
     data_temp_left = data_left[data_left[:, 0] >= cutoff - h_ref_left]
     data_temp_right = data_right[data_right[:, 0] <= cutoff + h_ref_right]

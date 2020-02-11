@@ -31,3 +31,8 @@ def test_rule_of_thumb_positive_h_opt(setup_rule_of_thumb):
         data=setup_rule_of_thumb["data"], cutoff=setup_rule_of_thumb["cutoff"]
     )
     assert calc_h_opt > 0
+
+
+def test_rule_of_thumb_cutoff_within_range(setup_rule_of_thumb):
+    with pytest.raises(ValueError):
+        rule_of_thumb(data=setup_rule_of_thumb["data"], cutoff=6)
