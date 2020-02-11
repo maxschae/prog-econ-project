@@ -26,3 +26,5 @@ def build(ctx):
         deps=[ctx.path_to(ctx, "FUNCTIONS", "cross_validation.py")],
         name="test_cross_validation",
     )
+
+    ctx(features="run_py_script", source="rule_of_thumb.py", name="rule_of_thumb")
