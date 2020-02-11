@@ -28,3 +28,10 @@ def build(ctx):
     )
 
     ctx(features="run_py_script", source="rule_of_thumb.py", name="rule_of_thumb")
+
+    ctx(
+        features="run_py_script",
+        source="test_rule_of_thumb.py",
+        deps=[ctx.path_to(ctx, "FUNCTIONS", "rule_of_thumb.py")],
+        name="test_rule_of_thumb",
+    )
