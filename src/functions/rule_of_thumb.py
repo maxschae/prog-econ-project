@@ -22,11 +22,13 @@ def rule_of_thumb(data, cutoff):
     """
 
     data.columns = ["x", "y"]
+    data_left = np.array(data[data["x"] < cutoff])
+    data_right = np.array(data[data["x"] >= cutoff])
     n = data.shape[0]
-    data_left = np.array(data[data["x"] <= cutoff])
-    data_right = np.array(data[data["x"] > cutoff])
+    n_left = data_left.shape[0]
+    n_right = data_right.shape[0]
 
-    if data_left.size == 0 or data_right.size == 0:
+    if n_left == 0 or n_right == 0:
         raise ValueError(
             "The cutoff must lie within the range of the running variable."
         )
@@ -35,21 +37,23 @@ def rule_of_thumb(data, cutoff):
 
     # Step 1.
     sigma_x = pd.DataFrame.var(data, axis=0)[0]
-    h_ref = 1.84 * np.sqrt(sigma_x) * n ** (-1 / 5)
+    h_pilot = 1.84 * np.sqrt(sigma_x) * n ** (-1 / 5)
 
-    if h_ref <= 0:
-        raise ValueError("The computed reference bandwidth is not positive.")
+    if h_pilot <= 0:
+        raise ValueError("The computed pilot bandwidth is not positive.")
     else:
         pass
 
-    data_left_in_bw = data_left[data_left[:, 0] >= cutoff - h_ref]
-    data_right_in_bw = data_right[data_right[:, 0] <= cutoff + h_ref]
-    n_left_in_bw = data_left_in_bw.shape[0]
-    n_right_in_bw = data_right_in_bw.shape[0]
-    y_ave_left_in_bw = np.sum(data_left_in_bw, axis=0)[1] / n_left_in_bw
-    y_ave_right_in_bw = np.sum(data_right_in_bw, axis=0)[1] / n_right_in_bw
+    data_left_in_h_pilot = data_left[data_left[:, 0] >= cutoff - h_pilot]
+    data_right_in_h_pilot = data_right[data_right[:, 0] <= cutoff + h_pilot]
+    n_left_in_h_pilot = data_left_in_h_pilot.shape[0]
+    n_right_in_h_pilot = data_right_in_h_pilot.shape[0]
+    y_mean_left_in_h_pilot = np.sum(data_left_in_h_pilot, axis=0)[1] / n_left_in_h_pilot
+    y_mean_right_in_h_pilot = (
+        np.sum(data_right_in_h_pilot, axis=0)[1] / n_right_in_h_pilot
+    )
 
-    f_hat = (n_left_in_bw + n_right_in_bw) / (n * h_ref)
+    f_hat = (n_left_in_h_pilot + n_right_in_h_pilot) / (n * h_pilot)
 
     if f_hat <= 0:
         raise ValueError("The computed density function estimate is not positive.")
@@ -57,9 +61,9 @@ def rule_of_thumb(data, cutoff):
         pass
 
     sigma_hat = (
-        np.sum((data_left_in_bw[:, 1] - y_ave_left_in_bw) ** 2)
-        + np.sum((data_right_in_bw[:, 1] - y_ave_right_in_bw) ** 2)
-    ) / (n_left_in_bw + n_right_in_bw)
+        np.sum((data_left_in_h_pilot[:, 1] - y_mean_left_in_h_pilot) ** 2)
+        + np.sum((data_right_in_h_pilot[:, 1] - y_mean_right_in_h_pilot) ** 2)
+    ) / (n_left_in_h_pilot + n_right_in_h_pilot)
 
     if sigma_hat <= 0:
         raise ValueError(
@@ -76,27 +80,22 @@ def rule_of_thumb(data, cutoff):
     data_temp = np.concatenate(
         (bigger_than_median_left, smaller_than_median_right), axis=0
     )
-    x_temp = data_temp[:, 0]
-    x_temp_minus_c = x_temp - cutoff
+    x_temp = data_temp[:, 0] - cutoff
     y_temp = data_temp[:, 1]
+
+    x_temp_powers = x_temp[:, None] ** np.arange(4)
     treatment_indicator = np.zeros(data_temp.shape[0])
-    index = np.where(data_temp[:, 0] >= cutoff)
-    treatment_indicator[index] = 1
-    x_temp_powers = x_temp_minus_c[:, None] ** np.arange(4)
+    treatment_indicator[np.where(data_temp[:, 0] >= cutoff)] = 1
     x_temp_powers[:, 0] += treatment_indicator
 
-    reg_results = np.linalg.lstsq(x_temp_powers, y_temp, rcond=None)
+    reg_results = np.linalg.lstsq(a=x_temp_powers, b=y_temp, rcond=None)
     m3_hat = 6 * reg_results[0][3]
 
     h_ref_left = (
-        3.56
-        * (sigma_hat / (f_hat * np.max([m3_hat ** 2, 0.01]))) ** (1 / 7)
-        * n_left_in_bw
+        3.56 * (sigma_hat / (f_hat * np.max([m3_hat ** 2, 0.01]))) ** (1 / 7) * n_left
     )
     h_ref_right = (
-        3.56
-        * (sigma_hat / (f_hat * np.max([m3_hat ** 2, 0.01]))) ** (1 / 7)
-        * n_right_in_bw
+        3.56 * (sigma_hat / (f_hat * np.max([m3_hat ** 2, 0.01]))) ** (1 / 7) * n_right
     )
 
     if h_ref_left <= 0 or h_ref_right <= 0:
@@ -104,28 +103,30 @@ def rule_of_thumb(data, cutoff):
     else:
         pass
 
-    data_temp_left = data_left[data_left[:, 0] >= cutoff - h_ref_left]
-    data_temp_right = data_right[data_right[:, 0] <= cutoff + h_ref_right]
-    n_temp_left = data_temp_left.shape[0]
-    n_temp_right = data_temp_right.shape[0]
+    data_left_in_h_ref = data_left[data_left[:, 0] >= cutoff - h_ref_left]
+    data_right_in_h_ref = data_right[data_right[:, 0] <= cutoff + h_ref_right]
+    n_left_in_h_ref = data_left_in_h_ref.shape[0]
+    n_right_in_h_ref = data_right_in_h_ref.shape[0]
 
-    x_temp_left = data_temp_left[:, 0]
-    x_temp_left_minus_c = x_temp_left - cutoff
-    y_temp_left = data_temp_left[:, 1]
-    x_temp_powers_left = x_temp_left_minus_c[:, None] ** np.arange(3)
-    reg_results_left = np.linalg.lstsq(x_temp_powers_left, y_temp_left, rcond=None)
+    x_left_in_h_ref = data_left_in_h_ref[:, 0] - cutoff
+    y_left_in_h_ref = data_left_in_h_ref[:, 1]
+    x_powers_left_in_h_ref = x_left_in_h_ref[:, None] ** np.arange(3)
+    reg_results_left = np.linalg.lstsq(
+        x_powers_left_in_h_ref, y_left_in_h_ref, rcond=None
+    )
     m2_hat_left = 2 * reg_results_left[0][2]
 
-    x_temp_right = data_temp_right[:, 0]
-    x_temp_right_minus_c = x_temp_right - cutoff
-    y_temp_right = data_temp_right[:, 1]
-    x_temp_powers_right = x_temp_right_minus_c[:, None] ** np.arange(3)
-    reg_results_right = np.linalg.lstsq(x_temp_powers_right, y_temp_right, rcond=None)
+    x_right_in_h_ref = data_right_in_h_ref[:, 0] - cutoff
+    y_right_in_h_ref = data_right_in_h_ref[:, 1]
+    x_powers_right_in_h_ref = x_right_in_h_ref[:, None] ** np.arange(3)
+    reg_results_right = np.linalg.lstsq(
+        a=x_powers_right_in_h_ref, b=y_right_in_h_ref, rcond=None
+    )
     m2_hat_right = 2 * reg_results_right[0][2]
 
     # Step 3.
-    r_hat_left = 720 * sigma_hat / (n_temp_left * h_ref_left ** 4)
-    r_hat_right = 720 * sigma_hat / (n_temp_right * h_ref_right ** 4)
+    r_hat_left = 720 * sigma_hat / (n_left_in_h_ref * h_ref_left ** 4)
+    r_hat_right = 720 * sigma_hat / (n_right_in_h_ref * h_ref_right ** 4)
 
     h_opt = (
         3.4375
