@@ -6,7 +6,7 @@ def build(ctx):
     ctx.recurse("data_management")
     ctx.recurse("analysis")
     ctx.recurse("final")
-    ctx.recurse("functions")
+    ctx.recurse("non-parametric_functions")
     ctx.recurse("simulation_study")
     # Safety measure -- else the LaTeX scanner might fail because some
     # '.tex'-source file has not been generated.
