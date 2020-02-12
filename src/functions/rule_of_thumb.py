@@ -92,10 +92,14 @@ def rule_of_thumb(data, cutoff):
     m3_hat = 6 * reg_results[0][3]
 
     h_ref_left = (
-        3.56 * (sigma_hat / (f_hat * np.max([m3_hat ** 2, 0.01]))) ** (1 / 7) * n_left
+        3.56
+        * (sigma_hat / (f_hat * np.max([m3_hat ** 2, 0.01]))) ** (1 / 7)
+        * n_left ** (-1 / 7)
     )
     h_ref_right = (
-        3.56 * (sigma_hat / (f_hat * np.max([m3_hat ** 2, 0.01]))) ** (1 / 7) * n_right
+        3.56
+        * (sigma_hat / (f_hat * np.max([m3_hat ** 2, 0.01]))) ** (1 / 7)
+        * n_right ** (-1 / 7)
     )
 
     if h_ref_left <= 0 or h_ref_right <= 0:
