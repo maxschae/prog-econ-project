@@ -9,21 +9,21 @@ def build(ctx):
     ctx(
         features="run_py_script",
         source="test_local_polynomial.py",
-        deps=[ctx.path_to(ctx, "NON-PARAMETRIC_FUNCTIONS", "local_polynomial.py")],
+        deps=[ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "local_polynomial.py")],
         name="test_local_polynomial",
     )
 
     ctx(
         features="run_py_script",
         source="cross_validation.py",
-        deps=[ctx.path_to(ctx, "NON-PARAMETRIC_FUNCTIONS", "local_polynomial.py")],
+        deps=[ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "local_polynomial.py")],
         name="cross_validation",
     )
 
     ctx(
         features="run_py_script",
         source="test_cross_validation.py",
-        deps=[ctx.path_to(ctx, "NON-PARAMETRIC_FUNCTIONS", "cross_validation.py")],
+        deps=[ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "cross_validation.py")],
         name="test_cross_validation",
     )
 
@@ -32,6 +32,6 @@ def build(ctx):
     ctx(
         features="run_py_script",
         source="test_rule_of_thumb.py",
-        deps=[ctx.path_to(ctx, "NON-PARAMETRIC_FUNCTIONS", "rule_of_thumb.py")],
+        deps=[ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "rule_of_thumb.py")],
         name="test_rule_of_thumb",
     )
