@@ -2,4 +2,14 @@
 
 
 def build(ctx):
-    pass
+    ctx(
+        features="run_py_script",
+        source="data_generating_process.py",
+        name="data_generating_process",
+    )
+    ctx(
+        features="run_py_script",
+        source="test_data_generating_process.py",
+        deps=[ctx.path_to(ctx, "SIMULATION_STUDY", "data_generating_process.py")],
+        name="test_data_generating_process",
+    )
