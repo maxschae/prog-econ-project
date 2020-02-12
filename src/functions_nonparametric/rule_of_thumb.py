@@ -11,9 +11,9 @@ def rule_of_thumb(data, cutoff):
         triangle kernel.
 
     Args:
-        data (pd.DataFrame): Dataframe with data on the running variable in the
-                            first column and data on the dependent variable in
-                            the second column.
+        data (pd.DataFrame): Dataframe with data on the running variable in a
+                            column called "r" and data on the dependent variable
+                            in a column called "y".
         cutoff (float): Cutpoint in the range of the running variable used to
                         distinguish between treatment and control groups.
 
@@ -21,9 +21,9 @@ def rule_of_thumb(data, cutoff):
         h_opt (float): Mean squared error optimal rule-of-thumb bandwidth.
     """
 
-    data.columns = ["x", "y"]
-    data_left = np.array(data[data["x"] < cutoff])
-    data_right = np.array(data[data["x"] >= cutoff])
+    data = data[["r", "y"]]
+    data_left = np.array(data[data["r"] < cutoff])
+    data_right = np.array(data[data["r"] >= cutoff])
     n = data.shape[0]
     n_left = data_left.shape[0]
     n_right = data_right.shape[0]
@@ -36,8 +36,8 @@ def rule_of_thumb(data, cutoff):
         pass
 
     # Step 1.
-    sigma_x = pd.DataFrame.var(data, axis=0)[0]
-    h_pilot = 1.84 * np.sqrt(sigma_x) * n ** (-1 / 5)
+    sigma_r = pd.DataFrame.var(data, axis=0)[0]
+    h_pilot = 1.84 * np.sqrt(sigma_r) * n ** (-1 / 5)
 
     if h_pilot <= 0:
         raise ValueError("The computed pilot bandwidth is not positive.")
@@ -73,22 +73,22 @@ def rule_of_thumb(data, cutoff):
         pass
 
     # Step 2.
-    median_x_left = np.median(data_left, axis=0)[0]
-    median_x_right = np.median(data_right, axis=0)[0]
-    bigger_than_median_left = data_left[data_left[:, 0] > median_x_left]
-    smaller_than_median_right = data_right[data_right[:, 0] < median_x_right]
+    median_r_left = np.median(data_left, axis=0)[0]
+    median_r_right = np.median(data_right, axis=0)[0]
+    bigger_than_median_left = data_left[data_left[:, 0] > median_r_left]
+    smaller_than_median_right = data_right[data_right[:, 0] < median_r_right]
     data_temp = np.concatenate(
         (bigger_than_median_left, smaller_than_median_right), axis=0
     )
-    x_temp = data_temp[:, 0] - cutoff
+    r_temp = data_temp[:, 0] - cutoff
     y_temp = data_temp[:, 1]
 
-    x_temp_powers = x_temp[:, None] ** np.arange(4)
+    r_temp_powers = r_temp[:, None] ** np.arange(4)
     treatment_indicator = np.zeros(data_temp.shape[0])
     treatment_indicator[np.where(data_temp[:, 0] >= cutoff)] = 1
-    x_temp_powers[:, 0] += treatment_indicator
+    r_temp_powers[:, 0] += treatment_indicator
 
-    reg_results = np.linalg.lstsq(a=x_temp_powers, b=y_temp, rcond=None)
+    reg_results = np.linalg.lstsq(a=r_temp_powers, b=y_temp, rcond=None)
     m3_hat = 6 * reg_results[0][3]
 
     h_ref_left = (
@@ -112,30 +112,33 @@ def rule_of_thumb(data, cutoff):
     n_left_in_h_ref = data_left_in_h_ref.shape[0]
     n_right_in_h_ref = data_right_in_h_ref.shape[0]
 
-    x_left_in_h_ref = data_left_in_h_ref[:, 0] - cutoff
+    r_left_in_h_ref = data_left_in_h_ref[:, 0] - cutoff
     y_left_in_h_ref = data_left_in_h_ref[:, 1]
-    x_powers_left_in_h_ref = x_left_in_h_ref[:, None] ** np.arange(3)
+    r_powers_left_in_h_ref = r_left_in_h_ref[:, None] ** np.arange(3)
     reg_results_left = np.linalg.lstsq(
-        x_powers_left_in_h_ref, y_left_in_h_ref, rcond=None
+        r_powers_left_in_h_ref, y_left_in_h_ref, rcond=None
     )
     m2_hat_left = 2 * reg_results_left[0][2]
 
-    x_right_in_h_ref = data_right_in_h_ref[:, 0] - cutoff
+    r_right_in_h_ref = data_right_in_h_ref[:, 0] - cutoff
     y_right_in_h_ref = data_right_in_h_ref[:, 1]
-    x_powers_right_in_h_ref = x_right_in_h_ref[:, None] ** np.arange(3)
+    r_powers_right_in_h_ref = r_right_in_h_ref[:, None] ** np.arange(3)
     reg_results_right = np.linalg.lstsq(
-        a=x_powers_right_in_h_ref, b=y_right_in_h_ref, rcond=None
+        a=r_powers_right_in_h_ref, b=y_right_in_h_ref, rcond=None
     )
     m2_hat_right = 2 * reg_results_right[0][2]
 
     # Step 3.
-    r_hat_left = 720 * sigma_hat / (n_left_in_h_ref * h_ref_left ** 4)
-    r_hat_right = 720 * sigma_hat / (n_right_in_h_ref * h_ref_right ** 4)
+    regul_term_left = 720 * sigma_hat / (n_left_in_h_ref * h_ref_left ** 4)
+    regul_term_right = 720 * sigma_hat / (n_right_in_h_ref * h_ref_right ** 4)
 
     h_opt = (
         3.4375
         * (2 * sigma_hat)
-        / (f_hat * ((m2_hat_right - m2_hat_left) ** 2 + r_hat_right + r_hat_left))
+        / (
+            f_hat
+            * ((m2_hat_right - m2_hat_left) ** 2 + regul_term_right + regul_term_left)
+        )
         ** (1 / 5)
         * n ** (-1 / 5)
     )

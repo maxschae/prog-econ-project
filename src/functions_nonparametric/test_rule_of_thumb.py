@@ -18,7 +18,7 @@ def setup_rule_of_thumb():
             [3.8, 5.5],
             [4, 7],
         ],
-        columns=["run_var", "y"],
+        columns=["r", "y"],
         index=range(9),
     )
     out["cutoff"] = 2.5

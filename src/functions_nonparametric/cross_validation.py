@@ -9,9 +9,9 @@ def cross_validation(data, cutoff, h_grid, degree):
         Ludwig and Miller (2005) and Imbens and Lemieux (2008).
 
     Args:
-        data (pd.DataFrame): Dataframe with data on the running variable in the
-                            first column and data on the dependent variable in
-                            the second column.
+        data (pd.DataFrame): Dataframe with data on the running variable in a
+                            column called "r" and data on the dependent variable
+                            in a column called "y".
         cutoff (float): Cutpoint in the range of the running variable used to
                         distinguish between treatment and control groups.
         h_grid (np.array): Grid of bandwidths taken into consideration.
@@ -26,9 +26,9 @@ def cross_validation(data, cutoff, h_grid, degree):
     else:
         pass
 
-    data.columns = ["run_var", "y"]
-    data_left = np.array(data[data["run_var"] <= cutoff])
-    data_right = np.array(data[data["run_var"] > cutoff])
+    data = data[["r", "y"]]
+    data_left = np.array(data[data["r"] <= cutoff])
+    data_right = np.array(data[data["r"] > cutoff])
 
     if data_left.size == 0 or data_right.size == 0:
         raise ValueError(
@@ -42,33 +42,33 @@ def cross_validation(data, cutoff, h_grid, degree):
     for h_index, h in enumerate(h_grid):
         intermediate_res = 0
 
-        for x_index, x_point in enumerate(data_left[:, 0]):
-            training_data = np.delete(data_left, x_index, axis=0)
-            training_data = training_data[training_data[:, 0] <= x_point]
+        for r_index, r_point in enumerate(data_left[:, 0]):
+            training_data = np.delete(data_left, r_index, axis=0)
+            training_data = training_data[training_data[:, 0] <= r_point]
             if training_data.shape[0] >= 2:
                 y_hat = y_hat_local_polynomial(
                     x=training_data[:, 0],
                     y=training_data[:, 1],
-                    x0=x_point,
+                    x0=r_point,
                     degree=degree,
                     bandwidth=h,
                 )
-                intermediate_res += (data_left[x_index, 1] - y_hat) ** 2
+                intermediate_res += (data_left[r_index, 1] - y_hat) ** 2
             else:
                 pass
 
-        for x_index, x_point in enumerate(data_right[:, 0]):
-            training_data = np.delete(data_right, x_index, axis=0)
-            training_data = training_data[training_data[:, 0] >= x_point]
+        for r_index, r_point in enumerate(data_right[:, 0]):
+            training_data = np.delete(data_right, r_index, axis=0)
+            training_data = training_data[training_data[:, 0] >= r_point]
             if training_data.shape[0] >= 2:
                 y_hat = y_hat_local_polynomial(
                     x=training_data[:, 0],
                     y=training_data[:, 1],
-                    x0=x_point,
+                    x0=r_point,
                     degree=degree,
                     bandwidth=h,
                 )
-                intermediate_res += (data_right[x_index, 1] - y_hat) ** 2
+                intermediate_res += (data_right[r_index, 1] - y_hat) ** 2
             else:
                 pass
 
