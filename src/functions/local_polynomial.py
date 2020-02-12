@@ -27,8 +27,8 @@ def y_hat_local_polynomial(x, y, x0, degree=1, bandwidth=1):
 
     data_points = np.abs(x - x0) / bandwidth
     weights = np.zeros_like(data_points)
-    index = np.where(data_points <= 1)
-    weights[index] = 1 - data_points[index]
+    index_pos_weight = np.where(data_points <= 1)
+    weights[index_pos_weight] = 1 - data_points[index_pos_weight]
 
     if np.all(weights == 0):
         raise ValueError("The Kernel does not include any data.")
@@ -36,10 +36,9 @@ def y_hat_local_polynomial(x, y, x0, degree=1, bandwidth=1):
         pass
 
     # Consider only datapoints with positive weight.
-    index2 = np.where(weights > 0)[0]
-    weights = weights[index2]
-    x = x[index2]
-    y = y[index2]
+    weights = weights[np.where(weights > 0)]
+    x = x[np.where(weights > 0)]
+    y = y[np.where(weights > 0)]
 
     sqrt_weights = np.sqrt(weights)
     x_powers = x[:, None] ** np.arange(degree + 1)
