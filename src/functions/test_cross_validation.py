@@ -57,3 +57,13 @@ def test_cross_validation_positive_h_opt(setup_cross_validation):
         degree=setup_cross_validation["degree"],
     )
     assert calc_h_opt > 0
+
+
+def test_cross_validation_h_opt_in_h_grid(setup_cross_validation):
+    calc_h_opt = cross_validation(
+        data=setup_cross_validation["data"],
+        cutoff=setup_cross_validation["cutoff"],
+        h_grid=setup_cross_validation["h_grid"],
+        degree=setup_cross_validation["degree"],
+    )
+    assert np.any(setup_cross_validation["h_grid"] == calc_h_opt)
