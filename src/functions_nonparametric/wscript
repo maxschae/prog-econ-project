@@ -42,6 +42,7 @@ def build(ctx):
         deps=[
             ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "rule_of_thumb.py"),
             ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "cross_validation.py"),
+            ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "local_polynomial.py"),
         ],
         name="timing",
     )

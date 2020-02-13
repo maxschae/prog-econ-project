@@ -14,7 +14,7 @@ def rule_of_thumb(data, cutoff):
         data (pd.DataFrame): Dataframe with data on the running variable in a
                             column called "r" and data on the dependent variable
                             in a column called "y".
-        cutoff (float): Cutpoint in the range of the running variable used to
+        cutoff (float): Cutpoint in range of the running variable used to
                         distinguish between treatment and control groups.
 
     Returns:
@@ -29,13 +29,11 @@ def rule_of_thumb(data, cutoff):
     n_right = data_right.shape[0]
 
     if n_left == 0 or n_right == 0:
-        raise ValueError(
-            "The cutoff must lie within the range of the running variable."
-        )
+        raise ValueError("Cutoff must lie within range of the running variable.")
     else:
         pass
 
-    # Step 1.
+    # Step 1: Estimation of density and conditional variance.
     sigma_r = pd.DataFrame.var(data, axis=0)[0]
     h_pilot = 1.84 * np.sqrt(sigma_r) * n ** (-1 / 5)
 
@@ -53,6 +51,7 @@ def rule_of_thumb(data, cutoff):
         np.sum(data_right_in_h_pilot, axis=0)[1] / n_right_in_h_pilot
     )
 
+    # Compute density estimate.
     f_hat = (n_left_in_h_pilot + n_right_in_h_pilot) / (n * h_pilot)
 
     if f_hat <= 0:
@@ -60,6 +59,7 @@ def rule_of_thumb(data, cutoff):
     else:
         pass
 
+    # Compute conditional variance.
     sigma_hat = (
         np.sum((data_left_in_h_pilot[:, 1] - y_mean_left_in_h_pilot) ** 2)
         + np.sum((data_right_in_h_pilot[:, 1] - y_mean_right_in_h_pilot) ** 2)
@@ -72,7 +72,7 @@ def rule_of_thumb(data, cutoff):
     else:
         pass
 
-    # Step 2.
+    # Step 2: Estimation of second derivatives.
     median_r_left = np.median(data_left, axis=0)[0]
     median_r_right = np.median(data_right, axis=0)[0]
     bigger_than_median_left = data_left[data_left[:, 0] > median_r_left]
@@ -128,7 +128,7 @@ def rule_of_thumb(data, cutoff):
     )
     m2_hat_right = 2 * reg_results_right[0][2]
 
-    # Step 3.
+    # Step 3: Calculation of regularisation terms and optimal bandwidth.
     regul_term_left = 720 * sigma_hat / (n_left_in_h_ref * h_ref_left ** 4)
     regul_term_right = 720 * sigma_hat / (n_right_in_h_ref * h_ref_right ** 4)
 

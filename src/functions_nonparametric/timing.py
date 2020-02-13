@@ -43,8 +43,8 @@ for _j in range(10):
     stop_cv = time()
     runtimes_cv.append(stop_cv - start_cv)
 
-# Calculate mean runtime.
+# Calculate mean runtimes.
 mean_runtime_rot = np.mean(runtimes_rot[1:])
 mean_runtime_cv = np.mean(runtimes_cv[1:])
-print(f"Rule-of-thumb bandwidth selection took {mean_runtime_rot} seconds.")
-print(f"Cross-validation bandwidth selection took {mean_runtime_cv} seconds.")
+print(f"Rule-of-thumb bandwidth selection function took {mean_runtime_rot} seconds.")
+print(f"Cross-validation bandwidth selection function took {mean_runtime_cv} seconds.")

@@ -33,9 +33,7 @@ def cross_validation(data, cutoff, h_grid, degree, min_num_obs):
     data_right = np.array(data[data["r"] > cutoff])
 
     if data_left.size == 0 or data_right.size == 0:
-        raise ValueError(
-            "The cutoff must lie within the range of the running variable."
-        )
+        raise ValueError("Cutoff must lie within range of the running variable.")
     else:
         pass
 
