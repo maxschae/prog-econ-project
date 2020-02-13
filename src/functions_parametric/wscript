@@ -2,4 +2,16 @@
 
 
 def build(ctx):
-    pass
+    ctx(
+        features="run_py_script",
+        source="treatment_effect_estimation.py",
+        name="treatment_effect_estimation",
+    )
+    ctx(
+        features="run_py_script",
+        source="test_treatment_effect_estimation.py",
+        deps=[
+            ctx.path_to(ctx, "FUNCTIONS_PARAMETRIC", "treatment_effect_estimation.py")
+        ],
+        name="test_treatment_effect_estimation",
+    )
