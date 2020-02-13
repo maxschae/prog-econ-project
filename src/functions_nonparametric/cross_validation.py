@@ -2,7 +2,7 @@ import numpy as np
 from local_polynomial import y_hat_local_polynomial
 
 
-def cross_validation(data, cutoff, h_grid, degree):
+def cross_validation(data, cutoff, h_grid, degree, min_num_obs):
     """ Perform leave-one-out cross-validation to select the mean squared error
         optimal bandwidth used in local polynomial regression out of a given grid.
         The procedure is tailored to the RDD context and follows the ideas of
@@ -16,6 +16,8 @@ def cross_validation(data, cutoff, h_grid, degree):
                         distinguish between treatment and control groups.
         h_grid (np.array): Grid of bandwidths taken into consideration.
         degree (float): Degree of polynomial used for local polynomial regression.
+        min_num_obs (float): Minimum number of observations used for fitting the
+                            data at a particular point.
 
     Returns:
         h_opt (float): Mean squared error optimal bandwidth out of h_grid.
@@ -45,7 +47,7 @@ def cross_validation(data, cutoff, h_grid, degree):
         for r_index, r_point in enumerate(data_left[:, 0]):
             training_data = np.delete(data_left, r_index, axis=0)
             training_data = training_data[training_data[:, 0] <= r_point]
-            if training_data.shape[0] >= 2:
+            if training_data.shape[0] >= min_num_obs:
                 y_hat = y_hat_local_polynomial(
                     x=training_data[:, 0],
                     y=training_data[:, 1],
@@ -60,7 +62,7 @@ def cross_validation(data, cutoff, h_grid, degree):
         for r_index, r_point in enumerate(data_right[:, 0]):
             training_data = np.delete(data_right, r_index, axis=0)
             training_data = training_data[training_data[:, 0] >= r_point]
-            if training_data.shape[0] >= 2:
+            if training_data.shape[0] >= min_num_obs:
                 y_hat = y_hat_local_polynomial(
                     x=training_data[:, 0],
                     y=training_data[:, 1],
