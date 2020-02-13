@@ -84,12 +84,12 @@ def rule_of_thumb(data, cutoff):
     y_temp = data_temp[:, 1]
 
     r_temp_powers = r_temp[:, None] ** np.arange(4)
-    treatment_indicator = np.zeros(data_temp.shape[0])
+    treatment_indicator = np.zeros((data_temp.shape[0], 1))
     treatment_indicator[np.where(data_temp[:, 0] >= cutoff)] = 1
-    r_temp_powers[:, 0] += treatment_indicator
+    r_temp_powers = np.concatenate((treatment_indicator, r_temp_powers), axis=1)
 
     reg_results = np.linalg.lstsq(a=r_temp_powers, b=y_temp, rcond=None)
-    m3_hat = 6 * reg_results[0][3]
+    m3_hat = 6 * reg_results[0][4]
 
     h_ref_left = (
         3.56
@@ -134,10 +134,17 @@ def rule_of_thumb(data, cutoff):
 
     h_opt = (
         3.4375
-        * (2 * sigma_hat)
-        / (
-            f_hat
-            * ((m2_hat_right - m2_hat_left) ** 2 + regul_term_right + regul_term_left)
+        * (
+            2
+            * sigma_hat
+            / (
+                f_hat
+                * (
+                    (m2_hat_right - m2_hat_left) ** 2
+                    + regul_term_right
+                    + regul_term_left
+                )
+            )
         )
         ** (1 / 5)
         * n ** (-1 / 5)
