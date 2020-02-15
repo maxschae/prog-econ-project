@@ -36,9 +36,9 @@ def y_hat_local_polynomial(x, y, x0, degree=1, bandwidth=1):
         pass
 
     # Consider only datapoints with positive weight.
-    weights = weights[np.where(weights > 0)]
     x = x[np.where(weights > 0)]
     y = y[np.where(weights > 0)]
+    weights = weights[np.where(weights > 0)]
 
     sqrt_weights = np.sqrt(weights)
     x_powers = x[:, None] ** np.arange(degree + 1)
@@ -47,7 +47,7 @@ def y_hat_local_polynomial(x, y, x0, degree=1, bandwidth=1):
     x_powers_weighted = x_powers * sqrt_weights[:, None]
     y_weighted = y * sqrt_weights
 
-    beta_hat = np.linalg.lstsq(x_powers_weighted, y_weighted, rcond=None)[0]
+    beta_hat = np.linalg.lstsq(a=x_powers_weighted, b=y_weighted, rcond=None)[0]
     y0_hat = x0_powers.dot(beta_hat)
 
     return y0_hat

@@ -46,3 +46,9 @@ def build(ctx):
         ],
         name="timing",
     )
+
+    ctx(
+        features="run_py_script",
+        source="treatment_effect_estimation.py",
+        name="treatment_effect_estimation",
+    )
