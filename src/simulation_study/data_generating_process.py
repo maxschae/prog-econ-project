@@ -25,10 +25,6 @@ def data_generating_process(params, model="linear"):
             "model (argument) must be 'linear', 'polynomial', or 'nonparametric'."
         )
 
-    n = params["n"]
-    if isinstance(n, int) is False:
-        raise ValueError("n (argument) must be integer.")
-
     # Obtain model parameters.
     cutoff = params["cutoff"]
     tau = params["tau"]
@@ -36,6 +32,8 @@ def data_generating_process(params, model="linear"):
     beta_l = params["beta_l"]
     beta_r = params["beta_r"]
     noise_var = params["noise_var"]
+
+    n = params["n"]
 
     data = pd.DataFrame()
 
@@ -69,4 +67,41 @@ def data_generating_process(params, model="linear"):
     elif model == "nonparametric":
         pass
 
-    return data
+    if params["discrete"] is False:
+        return data
+
+    elif params["discrete"] is True:
+        rmin = min(data["r"])
+        binsize = 2 * np.std(data["r"]) * n ** (-1 / 2)
+
+        binmp_lowest = (
+            np.floor((rmin - cutoff) / binsize) * binsize + binsize / 2 + cutoff
+        )  # Midpoint of lowest bin
+
+        # Assign each running variable observation its bin.
+        data["binnum"] = round(
+            (
+                (
+                    np.floor((data["r"] - cutoff) / binsize) * binsize
+                    + binsize / 2
+                    + cutoff
+                )
+                - binmp_lowest
+            )
+            / binsize
+        )
+
+        # Calculate mean of outcome and running variable for each discrete value.
+        data_discrete = data.groupby(["binnum"], as_index=False).mean()
+
+        # Mean of treatment indicator across bins must be zero or one.
+        d_means = np.array(data_discrete["d"].dropna().drop_duplicates())
+        if len(d_means) > 2:
+            raise ValueError("a bin contains both treatment and control observations.")
+        if np.array_equal(d_means, np.array([0, 1])) is False:
+            raise ValueError("a bin contains both treatment and control observations.")
+
+        return data_discrete
+
+    else:
+        return np.nan
