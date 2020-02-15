@@ -26,6 +26,14 @@ def estimate_treatment_effect_nonparametric(
             conf_int (np.array): (1-alpha)-confidence interval of the treatment
                                     effect estimate.
     """
+    if bandwidth <= 0:
+        raise ValueError("The specified bandwidth must be positive.")
+    if degree <= 0:
+        raise ValueError(
+            "The specified degree for local polynomial regression must be positive."
+        )
+    else:
+        pass
 
     r = np.array(data["r"])
     y = np.array(data["y"])
