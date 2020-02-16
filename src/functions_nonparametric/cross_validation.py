@@ -1,10 +1,10 @@
 import numpy as np
-from local_polynomial import y_hat_local_polynomial
+from local_linear import y_hat_local_linear
 
 
-def cross_validation(data, cutoff, h_grid, degree, min_num_obs):
+def cross_validation(data, cutoff, h_grid, min_num_obs):
     """ Perform leave-one-out cross-validation to select the mean squared error
-        optimal bandwidth used in local polynomial regression out of a given grid.
+        optimal bandwidth used in local linear regression out of a given grid.
         The procedure is tailored to the RDD context and follows the ideas of
         Ludwig and Miller (2005) and Imbens and Lemieux (2008).
 
@@ -15,7 +15,6 @@ def cross_validation(data, cutoff, h_grid, degree, min_num_obs):
         cutoff (float): Cutpoint in the range of the running variable used to
                         distinguish between treatment and control groups.
         h_grid (np.array): Grid of bandwidths taken into consideration.
-        degree (float): Degree of polynomial used for local polynomial regression.
         min_num_obs (float): Minimum number of observations used for fitting the
                             data at a particular point.
 
@@ -46,11 +45,10 @@ def cross_validation(data, cutoff, h_grid, degree, min_num_obs):
             training_data = np.delete(data_left, r_index, axis=0)
             training_data = training_data[training_data[:, 0] <= r_point]
             if training_data.shape[0] >= min_num_obs:
-                y_hat = y_hat_local_polynomial(
+                y_hat = y_hat_local_linear(
                     x=training_data[:, 0],
                     y=training_data[:, 1],
                     x0=r_point,
-                    degree=degree,
                     bandwidth=h,
                 )
                 intermediate_res += (data_left[r_index, 1] - y_hat) ** 2
@@ -61,11 +59,10 @@ def cross_validation(data, cutoff, h_grid, degree, min_num_obs):
             training_data = np.delete(data_right, r_index, axis=0)
             training_data = training_data[training_data[:, 0] >= r_point]
             if training_data.shape[0] >= min_num_obs:
-                y_hat = y_hat_local_polynomial(
+                y_hat = y_hat_local_linear(
                     x=training_data[:, 0],
                     y=training_data[:, 1],
                     x0=r_point,
-                    degree=degree,
                     bandwidth=h,
                 )
                 intermediate_res += (data_right[r_index, 1] - y_hat) ** 2

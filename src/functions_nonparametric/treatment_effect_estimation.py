@@ -2,10 +2,8 @@ import numpy as np
 import statsmodels.api as sm
 
 
-def estimate_treatment_effect_nonparametric(
-    data, cutoff, bandwidth, degree=1, alpha=0.05
-):
-    """Estimate treatment effect non-parametrically with local polynomial
+def estimate_treatment_effect_nonparametric(data, cutoff, bandwidth, alpha=0.05):
+    """Estimate treatment effect non-parametrically with local linear
         regression using the triangle kernel and a specified bandwidth.
 
     Args:
@@ -15,8 +13,7 @@ def estimate_treatment_effect_nonparametric(
                             status in a column called "d".
         cutoff (float): Cutpoint in the range of the running variable used to
                         distinguish between treatment and control groups.
-        bandwidth (float): Bandwidth used in local polynomial regression.
-        degree (float): Degree of polynomial used in local polynomial regression.
+        bandwidth (float): Bandwidth used in local linear regression.
         alpha (float): Significance level used to construct the confidence interval.
 
     Returns:
@@ -28,10 +25,6 @@ def estimate_treatment_effect_nonparametric(
     """
     if bandwidth <= 0:
         raise ValueError("The specified bandwidth must be positive.")
-    if degree <= 0:
-        raise ValueError(
-            "The specified degree for local polynomial regression must be positive."
-        )
     else:
         pass
 
@@ -57,7 +50,7 @@ def estimate_treatment_effect_nonparametric(
     weights = weights[np.where(weights > 0)]
 
     # Gather regressor values.
-    r_powers = r[:, None] ** np.arange(degree + 1)
+    r_powers = r[:, None] ** np.arange(2)
     r_powers_interact = r_powers[:, 1:] * d[:, None]
     regressors = np.column_stack((d, r_powers, r_powers_interact))
     reg_results = sm.WLS(endog=y, exog=regressors, weights=weights).fit()

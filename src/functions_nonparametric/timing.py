@@ -11,7 +11,6 @@ random.seed(123)
 n = 1000
 cutoff = 0
 h_grid = np.linspace(start=0.5, stop=3, num=50)
-degree = 1
 min_num_obs = 5
 
 data = pd.DataFrame()
@@ -37,9 +36,7 @@ for _i in range(10):
 
 for _j in range(10):
     start_cv = time()
-    cross_validation(
-        data=data, cutoff=cutoff, h_grid=h_grid, degree=degree, min_num_obs=min_num_obs
-    )
+    cross_validation(data=data, cutoff=cutoff, h_grid=h_grid, min_num_obs=min_num_obs)
     stop_cv = time()
     runtimes_cv.append(stop_cv - start_cv)
 
