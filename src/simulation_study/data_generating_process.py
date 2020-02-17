@@ -59,17 +59,19 @@ def data_generating_process(params):
             + np.random.normal(loc=0, scale=noise_var, size=n)
         )
 
-    elif model == "polynomial":
+    elif model == "poly":
+        # Obtain potential outcomes through 'poly' model.
         data["y"] = (
             alpha
-            - data["r"]
-            + data["r"] ** 1.1
             + tau * data["d"]
+            + 1.1 * data["r"]
             + 2 * np.cos(data["r"])
             + np.random.normal(loc=0, scale=noise_var, size=n)
         )
 
     elif model == "nonparametric":
+        pass
+    else:
         pass
 
     if params["discrete"] is False:

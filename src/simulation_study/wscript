@@ -19,6 +19,10 @@ def build(ctx):
         deps=[
             ctx.path_to(ctx, "SIMULATION_STUDY", "data_generating_process.py"),
             ctx.path_to(ctx, "FUNCTIONS_PARAMETRIC", "treatment_effect_estimation.py"),
+            ctx.path_to(
+                ctx, "FUNCTIONS_NONPARAMETRIC", "treatment_effect_estimation.py"
+            ),
+            ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "rule_of_thumb.py"),
         ],
         name="simulation_study",
     )
