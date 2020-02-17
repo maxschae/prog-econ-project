@@ -13,3 +13,12 @@ def build(ctx):
         deps=[ctx.path_to(ctx, "SIMULATION_STUDY", "data_generating_process.py")],
         name="test_data_generating_process",
     )
+    ctx(
+        features="run_py_script",
+        source="simulation_study.py",
+        deps=[
+            ctx.path_to(ctx, "SIMULATION_STUDY", "data_generating_process.py"),
+            ctx.path_to(ctx, "FUNCTIONS_PARAMETRIC", "treatment_effect_estimation.py"),
+        ],
+        name="simulation_study",
+    )
