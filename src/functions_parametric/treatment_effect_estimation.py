@@ -16,8 +16,8 @@ def estimate_treatment_effect_parametric(data, degree=1, out="coef"):
                    indicator or its confidence interval. Default is coef.
 
     Returns reg_out (dict):
-        tau_hat (float): Coefficient of treatment indicator.
-        conf_interval (np.ndarray): Respective confidence interval.
+        coef (float): Coefficient of treatment indicator.
+        coef_ci (np.ndarray): Respective 95% confidence interval.
     """
 
     if {"y", "d", "r"}.issubset(data.columns) is False:
