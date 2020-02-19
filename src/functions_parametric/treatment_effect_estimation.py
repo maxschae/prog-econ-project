@@ -15,7 +15,7 @@ def estimate_treatment_effect_parametric(data, degree=1):
 
     Returns reg_out (dict):
         coef (float): Coefficient of treatment indicator.
-        coef_ci (np.ndarray): Respective 95% confidence interval.
+        conf_int (np.ndarray): Respective 95% confidence interval.
     """
 
     if {"y", "d", "r"}.issubset(data.columns) is False:
