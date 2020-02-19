@@ -140,8 +140,8 @@ def simulate_estimator_performance(params, degree=1, parametric=True):
         raise TypeError("argument 'parametric' must be boolean.")
 
     performance_measure = {}
-    performance_measure["coverage_prob"] = np.mean(tau_in_conf_int)
     performance_measure["tau_hat"] = np.mean(tau_hats)
+    performance_measure["coverage_prob"] = np.mean(tau_in_conf_int)
     performance_measure["stdev_tau_hat"] = np.std(tau_hats)
     performance_measure["mse_tau_hat"] = np.square(
         np.subtract(tau_hats, params["tau"])
@@ -155,44 +155,90 @@ random.seed(1234)
 
 start = time.time()
 
-for model in ["linear", "poly"]:
-    sim_params = fix_simulation_params(model=model, discrete=False,)
+# Vary simulation along potential outcome models.
+for model in ["linear"]:
+    # Run simulation for continuous and discrete data.
+    for discrete in [False]:
+        for cutoff in [1, 10]:
+            sim_params = fix_simulation_params(
+                model=model, discrete=discrete, cutoff=cutoff,
+            )
+            # Estimate treatment effect parametrically and nonparametrically.
+            for parametric in [True, False]:
+                performance_measures = []
+                if parametric is True:
+                    degrees = list(range(0, 10, 1))
 
-    for parametric in [True, False]:
-        performance_measures = []
+                    # Estimate parametric model for different polynomials.
+                    for degree in degrees:
+                        performance_measures.append(
+                            simulate_estimator_performance(
+                                params=sim_params, degree=degree, parametric=parametric,
+                            )
+                        )
 
-        if parametric is True:
-            degrees = list(range(0, 10, 1))
-
-            for degree in degrees:
-                performance_measures.append(
-                    simulate_estimator_performance(
-                        params=sim_params, degree=degree, parametric=parametric
+                    # Convert dictionary to pd.DataFrame format to allow table construction.
+                    df_performance_measures = pd.DataFrame.from_dict(
+                        performance_measures
                     )
-                )
+                    df_performance_measures["degree"] = degrees
 
-            # Convert dictionary to pd.DataFrame format to allow table construction.
-            df_performance_measures = pd.DataFrame.from_dict(performance_measures)
-            df_performance_measures["degree"] = degrees
+                    # Round all measures for representation purposes.
+                    df_performance_measures = df_performance_measures.round(2)
+                    # Place 'degree' in first column for representation purposes.
+                    cols = df_performance_measures.columns.tolist()
+                    cols = cols[-1:] + cols[:-1]
+                    df_performance_measures = df_performance_measures[cols]
+                    # Rename columns for LaTex table.
+                    df_performance_measures = df_performance_measures.rename(
+                        columns={
+                            "coverage_prob": "Cov. Prob.",
+                            "degree": "Polynomials",
+                            "mse_tau_hat": "MSE",
+                            "tau_hat": "Estimate",
+                            "stdev_tau_hat": "Std. Dev.",
+                        },
+                    )
 
-            f = open(
-                ppj("OUT_FIGURES", f"perform_meas_table_{model}_parametric.tex"), "w"
-            )
-            # Construct table from dataframe holding performance measures.
-            f.write(df_performance_measures.to_latex(index=False))
-            f.close()
+                    f = open(
+                        ppj(
+                            "OUT_FIGURES",
+                            f"perf_meas_table_{model}_p_d_{discrete}_c_{cutoff}.tex",
+                        ),
+                        "w",
+                    )
+                    # Construct table from dataframe holding performance measures.
+                    f.write(df_performance_measures.to_latex(index=False))
+                    f.close()
 
-        elif parametric is False:
-            performance_measures.append(
-                simulate_estimator_performance(params=sim_params, parametric=parametric)
-            )
+                elif parametric is False:
+                    performance_measures.append(
+                        simulate_estimator_performance(
+                            params=sim_params, parametric=parametric
+                        )
+                    )
 
-            df_performance_measures = pd.DataFrame.from_dict(performance_measures)
-            f = open(
-                ppj("OUT_FIGURES", f"perform_meas_table_{model}_nonparametric.tex"), "w"
-            )
-            f.write(df_performance_measures.to_latex(index=False))
-            f.close()
+                    df_performance_measures = pd.DataFrame.from_dict(
+                        performance_measures
+                    )
+                    df_performance_measures = df_performance_measures.round(2)
+                    df_performance_measures = df_performance_measures.rename(
+                        columns={
+                            "coverage_prob": "Cov. Prob.",
+                            "mse_tau_hat": "MSE",
+                            "tau_hat": "Estimate",
+                            "stdev_tau_hat": "Std. Dev.",
+                        },
+                    )
+                    f = open(
+                        ppj(
+                            "OUT_FIGURES",
+                            f"perf_meas_table_{model}_np_d_{discrete}_c_{cutoff}.tex",
+                        ),
+                        "w",
+                    )
+                    f.write(df_performance_measures.to_latex(index=False))
+                    f.close()
 
 
 end = time.time()
