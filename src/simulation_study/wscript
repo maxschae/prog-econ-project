@@ -26,3 +26,9 @@ def build(ctx):
         ],
         name="simulation_study",
     )
+    ctx(
+        features="run_py_script",
+        source="test_simulation_study.py",
+        deps=[ctx.path_to(ctx, "SIMULATION_STUDY", "simulation_study.py")],
+        name="test_simulation_study",
+    )

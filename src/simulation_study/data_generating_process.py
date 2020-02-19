@@ -20,18 +20,8 @@ def data_generating_process(params):
     model = params["model"]
     cutoff = params["cutoff"]
     tau = params["tau"]
-    alpha = params["alpha"]
-    beta_l, beta_r = params["beta_l"], params["beta_r"]
     noise_var = params["noise_var"]
     n = params["n"]
-
-    # Check model parameters.
-    if params["distribution"] not in ["normal", "uniform"]:
-        raise ValueError("run. var. is drawn from 'normal' or 'uniform' only.")
-    if isinstance(params["discrete"], bool) is False:
-        raise TypeError("must be type boolean.")
-    if params["model"] not in ["linear", "poly"]:
-        raise ValueError("'model' takes 'linear' or 'poly' only.")
 
     data = pd.DataFrame()
 
@@ -43,7 +33,7 @@ def data_generating_process(params):
         data["r"] = np.random.uniform(low=0, high=20, size=n)
 
     if cutoff < np.min(data["r"]) or cutoff > np.max(data["r"]):
-        raise ValueError("cutoff out of bounds.")
+        raise AssertionError("cutoff out of bounds.")
 
     # Assign binary treatment status.
     data["d"] = 0
@@ -52,17 +42,17 @@ def data_generating_process(params):
     if model == "linear":
         # Obtain potential outcomes through linear model.
         data["y"] = (
-            alpha
+            10
             + tau * data["d"]
-            + beta_l * data["r"]
-            + (beta_l + beta_r) * data["d"] * data["r"]
+            + 1 * data["r"]
+            + (1 + 0.5) * data["d"] * data["r"]
             + np.random.normal(loc=0, scale=noise_var, size=n)
         )
 
     elif model == "poly":
         # Obtain potential outcomes through 'poly' model.
         data["y"] = (
-            alpha
+            10
             + tau * data["d"]
             + 1.1 * data["r"]
             + 2 * np.cos(data["r"])

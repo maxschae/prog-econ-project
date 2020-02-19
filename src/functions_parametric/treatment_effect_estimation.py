@@ -19,9 +19,9 @@ def estimate_treatment_effect_parametric(data, degree=1):
     """
 
     if {"y", "d", "r"}.issubset(data.columns) is False:
-        raise IndexError("y, d or r not in index. Cannot run regression.")
+        raise IndexError("'y', 'd' or 'r' not in index. Cannot run regression.")
     if (isinstance(degree, int) and degree >= 0) is False:
-        raise TypeError("polynomial order must be weakly positive integer.")
+        raise ValueError("polynomial order must be weakly positive integer.")
 
     r = np.array(data["r"])
     d = np.array(data["d"])

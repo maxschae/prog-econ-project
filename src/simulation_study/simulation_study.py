@@ -16,29 +16,52 @@ from src.functions_parametric.treatment_effect_estimation import (
 
 
 def fix_simulation_params(
-    model="linear", distribution="normal", discrete=False, cutoff=10,
+    n=1000,
+    M=100,
+    model="linear",
+    distribution="normal",
+    discrete=False,
+    cutoff=10,
+    tau=10,
+    noise_var=2,
 ):
     """Initialize parameters for simulating potential outcome model.
 
     Args:
+        n (int): Number of observations.
+        M (int): Number of Monte Carlo repitions.
         model (str): Specify general functional form of model
                      that potential outcomes underlie.
         distribution (str): Specify running variable's distribution.
         discrete (bool): Specify if data is discretized or not.
         cutoff (float): RDD cutoff.
+        noise_var (float): Variance of error term.
 
     Returns:
         sim_params (dict): Contains all parameters for simulation study
                            and data generating process.
     """
+
+    # Check model parameters.
+    if (isinstance(n, int) and isinstance(M, int)) is False:
+        raise TypeError("'n' and 'M' must be integer.")
+    if isinstance(n, int) is False:
+        raise TypeError("'n' must be integer.")
+    if model not in ["linear", "poly"]:
+        raise ValueError("'model' takes 'linear' or 'poly' only.")
+    if distribution not in ["normal", "uniform"]:
+        raise ValueError("'distribution' must be 'normal' or 'uniform'.")
+    if isinstance(discrete, bool) is False:
+        raise TypeError("'discrete' must be type boolean.")
+
     sim_params = {}
 
     # Set number of Monte Carlo repitions.
-    sim_params["M"] = 100
+    sim_params["M"] = M
 
     # Fix distribution of running variable, "normal" or "uniform".
     sim_params["distribution"] = distribution
-    sim_params["n"] = 1000
+    sim_params["n"] = n
 
     # Choose continuous or discrete data.
     sim_params["discrete"] = discrete
@@ -46,11 +69,8 @@ def fix_simulation_params(
     # Fix parameters of model that describes potential outcomes.
     sim_params["model"] = model
     sim_params["cutoff"] = cutoff
-    sim_params["tau"] = 10
-    sim_params["alpha"] = 10
-    sim_params["beta_l"] = 1
-    sim_params["beta_r"] = 0.5
-    sim_params["noise_var"] = 2
+    sim_params["tau"] = tau
+    sim_params["noise_var"] = noise_var
 
     return sim_params
 
