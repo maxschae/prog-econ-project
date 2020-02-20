@@ -43,10 +43,10 @@ def test_local_linear_positive_bandwidth(setup_local_linear):
 
 
 def test_local_linear_empty_kernel(setup_local_linear):
-    with pytest.raises(ValueError):
-        y_hat_local_linear(
-            x=setup_local_linear["x"],
-            y=setup_local_linear["y"],
-            x0=6.0,
-            bandwidth=setup_local_linear["bandwidth"],
-        )
+    calc_y0_hat = y_hat_local_linear(
+        x=setup_local_linear["x"],
+        y=setup_local_linear["y"],
+        x0=6.0,
+        bandwidth=setup_local_linear["bandwidth"],
+    )
+    assert np.isnan(calc_y0_hat)

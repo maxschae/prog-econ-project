@@ -52,7 +52,7 @@ def rule_of_thumb(data, cutoff):
     )
 
     # Compute density estimate.
-    f_hat = (n_left_in_h_pilot + n_right_in_h_pilot) / (2 * n * h_pilot)
+    f_hat = (n_left_in_h_pilot + n_right_in_h_pilot) / (n * h_pilot)
 
     if f_hat <= 0:
         raise ValueError("The computed density function estimate is not positive.")

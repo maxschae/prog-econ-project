@@ -22,15 +22,11 @@ def y_hat_local_linear(x, y, x0, bandwidth):
     else:
         pass
 
+    # Compute weights determined by triangle kernel.
     data_points = np.abs(x - x0) / bandwidth
     weights = np.zeros_like(data_points)
     index_pos_weight = np.where(data_points <= 1)
     weights[index_pos_weight] = 1 - data_points[index_pos_weight]
-
-    if np.all(weights == 0):
-        raise ValueError("The Kernel does not include any data.")
-    else:
-        pass
 
     # Consider only datapoints with positive weight.
     x = x[np.where(weights > 0)]
@@ -38,6 +34,13 @@ def y_hat_local_linear(x, y, x0, bandwidth):
     weights = weights[np.where(weights > 0)]
     sqrt_weights = np.sqrt(weights)
 
+    # In case of sparse data return nan.
+    if x.shape[0] < 2:
+        return np.nan
+    else:
+        pass
+
+    # Compute estimate of outcome variable at x0.
     x_powers = np.column_stack((np.ones(shape=x.shape[0]), x))
     x0_powers = x0 ** np.arange(2)
     x_powers_weighted = np.zeros_like(x_powers)
