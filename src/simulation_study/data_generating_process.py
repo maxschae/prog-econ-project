@@ -27,10 +27,10 @@ def data_generating_process(params):
 
     if params["distribution"] == "normal":
         # Draw running variable from Gaussian distribution.
-        data["r"] = np.random.normal(loc=10, scale=5, size=n)
+        data["r"] = np.random.normal(loc=0, scale=1, size=n)
     elif params["distribution"] == "uniform":
         # Draw running variable from uniform distribution.
-        data["r"] = np.random.uniform(low=0, high=20, size=n)
+        data["r"] = np.random.uniform(low=-1, high=1, size=n)
 
     if cutoff < np.min(data["r"]) or cutoff > np.max(data["r"]):
         raise AssertionError("cutoff out of bounds.")

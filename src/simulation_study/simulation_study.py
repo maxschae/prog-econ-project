@@ -22,9 +22,9 @@ def fix_simulation_params(
     model="linear",
     distribution="normal",
     discrete=False,
-    cutoff=10,
-    tau=10,
-    noise_var=2,
+    cutoff=0,
+    tau=0.75,
+    noise_var=1,
 ):
     """Initialize parameters for simulating potential outcome model.
 
@@ -107,7 +107,7 @@ def simulate_estimator_performance(params, degree=1, parametric=True, bandwidth=
     if parametric is True:
         for _ in range(params["M"]):
             out_reg = estimate_treatment_effect_parametric(
-                data=data_generating_process(params=sim_params), degree=degree,
+                data=data_generating_process(params=params), degree=degree,
             )
             tau_hat = out_reg["coef"]
             ci_lower, ci_upper = out_reg["conf_int"]
@@ -127,36 +127,26 @@ def simulate_estimator_performance(params, degree=1, parametric=True, bandwidth=
 
     elif parametric is False:
         for _ in range(params["M"]):
-            data = data_generating_process(params=sim_params)
+            data = data_generating_process(params=params)
 
-            # TODO: CHOOSE RIGHT GRID FOR BANDWIDTHS S.T. KERNEL IS NOT EMPTY
-            # DOESN'T WORK LIKE THAT SO FAR
             if bandwidth == "cv":
                 # Specify largest bandwidth taken into consideration.
-                min_value = np.absolute(
-                    pd.DataFrame.min(data["r"], axis=0) - sim_params["cutoff"]
-                )
-                max_value = np.absolute(
-                    pd.DataFrame.max(data["r"], axis=0) - sim_params["cutoff"]
-                )
-                largest_h_grid = (
-                    3 / 4 * np.minimum(np.array([min_value]), np.array([max_value]))
-                )
+                h_pilot = rule_of_thumb(data, params["cutoff"])
                 h = cross_validation(
                     data=data,
-                    cutoff=sim_params["cutoff"],
-                    h_grid=np.linspace(start=0.1, stop=largest_h_grid[0], num=50),
+                    cutoff=params["cutoff"],
+                    h_grid=np.linspace(start=0.5 * h_pilot, stop=2 * h_pilot, num=50),
                     min_num_obs=5,
                 )
             elif bandwidth == "rot":
-                h = rule_of_thumb(data, sim_params["cutoff"])
+                h = rule_of_thumb(data, params["cutoff"])
             elif isinstance(bandwidth, (float, int)):
                 h = bandwidth
             else:
                 raise ValueError("Specified bandwidth is incorrect.")
 
             out_reg = estimate_treatment_effect_nonparametric(
-                data=data, cutoff=sim_params["cutoff"], bandwidth=h,
+                data=data, cutoff=params["cutoff"], bandwidth=h,
             )
             tau_hat = out_reg["coef"]
             ci_lower, ci_upper = out_reg["conf_int"]
@@ -180,98 +170,105 @@ def simulate_estimator_performance(params, degree=1, parametric=True, bandwidth=
 
 
 # Run simulation study.
-random.seed(1234)
-
 start = time.time()
 
 # Vary simulation along potential outcome models.
 for model in ["linear"]:
     # Run simulation for continuous and discrete data.
     for discrete in [False]:
-        for cutoff in [1, 10]:
-            sim_params = fix_simulation_params(
-                model=model, discrete=discrete, cutoff=cutoff,
-            )
-            # Estimate treatment effect parametrically and nonparametrically.
-            for parametric in [True, False]:
-                performance_measures = []
-                if parametric is True:
-                    degrees = list(range(0, 10, 1))
+        sim_params = fix_simulation_params(model=model, discrete=discrete)
 
-                    # Estimate parametric model for different polynomials.
-                    for degree in degrees:
-                        performance_measures.append(
-                            simulate_estimator_performance(
-                                params=sim_params, degree=degree, parametric=parametric,
-                            )
+        # Estimate treatment effect parametrically and non-parametrically.
+        for parametric in [True, False]:
+            performance_measures = []
+
+            if parametric is True:
+                # Estimate parametric model with different polyonomial degrees.
+                degrees = list(range(0, 10, 1))
+                for degree in degrees:
+                    random.seed(123)
+                    performance_measures.append(
+                        simulate_estimator_performance(
+                            params=sim_params, degree=degree, parametric=parametric,
                         )
-
-                    # Convert dictionary to pd.DataFrame format to allow table construction.
-                    df_performance_measures = pd.DataFrame.from_dict(
-                        performance_measures
-                    )
-                    df_performance_measures["degree"] = degrees
-
-                    # Round all measures for representation purposes.
-                    df_performance_measures = df_performance_measures.round(2)
-                    # Place 'degree' in first column for representation purposes.
-                    cols = df_performance_measures.columns.tolist()
-                    cols = cols[-1:] + cols[:-1]
-                    df_performance_measures = df_performance_measures[cols]
-                    # Rename columns for LaTex table.
-                    df_performance_measures = df_performance_measures.rename(
-                        columns={
-                            "coverage_prob": "Cov. Prob.",
-                            "degree": "Polynomials",
-                            "mse_tau_hat": "MSE",
-                            "tau_hat": "Estimate",
-                            "stdev_tau_hat": "Std. Dev.",
-                        },
                     )
 
-                    f = open(
-                        ppj(
-                            "OUT_FIGURES",
-                            f"perf_meas_table_{model}_p_d_{discrete}_c_{cutoff}.tex",
-                        ),
-                        "w",
+                # Convert dictionary to pd.DataFrame format to allow table construction.
+                df_performance_measures = pd.DataFrame.from_dict(performance_measures)
+                df_performance_measures["degree"] = degrees
+
+                # Round all measures for representation purposes.
+                df_performance_measures = df_performance_measures.round(5)
+                # Place 'degree' in first column for representation purposes.
+                cols = df_performance_measures.columns.tolist()
+                cols = cols[-1:] + cols[:-1]
+                df_performance_measures = df_performance_measures[cols]
+                # Rename columns for LaTex table.
+                df_performance_measures = df_performance_measures.rename(
+                    columns={
+                        "coverage_prob": "Cov. Prob.",
+                        "degree": "Polynomials",
+                        "mse_tau_hat": "MSE",
+                        "tau_hat": "Estimate",
+                        "stdev_tau_hat": "Std. Dev.",
+                    },
+                )
+
+                # Construct table from dataframe holding performance measures.
+                with open(
+                    ppj(
+                        "OUT_TABLES",
+                        "simulation_study",
+                        f"perf_meas_table_{model}_p_d_{discrete}.tex",
+                    ),
+                    "w",
+                ) as j:
+                    j.write(df_performance_measures.to_latex(index=False))
+
+            elif parametric is False:
+                # Estimate non-parametric model with different bandwidths.
+                bandwidths = ["rot"]
+                for bandwidth in bandwidths:
+                    random.seed(123)
+                    performance_measures.append(
+                        simulate_estimator_performance(
+                            params=sim_params,
+                            parametric=parametric,
+                            bandwidth=bandwidth,
+                        )
                     )
-                    # Construct table from dataframe holding performance measures.
-                    f.write(df_performance_measures.to_latex(index=False))
-                    f.close()
 
-                elif parametric is False:
-                    for bandwidth in ["rot"]:
-                        performance_measures.append(
-                            simulate_estimator_performance(
-                                params=sim_params,
-                                parametric=parametric,
-                                bandwidth=bandwidth,
-                            )
-                        )
+                # Convert dictionary to pd.DataFrame format to allow table construction.
+                df_performance_measures = pd.DataFrame.from_dict(performance_measures)
+                df_performance_measures["bandwidth"] = bandwidths
 
-                        df_performance_measures = pd.DataFrame.from_dict(
-                            performance_measures
-                        )
-                        df_performance_measures = df_performance_measures.round(2)
-                        df_performance_measures = df_performance_measures.rename(
-                            columns={
-                                "coverage_prob": "Cov. Prob.",
-                                "mse_tau_hat": "MSE",
-                                "tau_hat": "Estimate",
-                                "stdev_tau_hat": "Std. Dev.",
-                            },
-                        )
-                        f = open(
-                            ppj(
-                                "OUT_FIGURES",
-                                f"perf_meas_table_{model}_np_d_{discrete}_c_{cutoff}.tex",
-                            ),
-                            "w",
-                        )
-                        f.write(df_performance_measures.to_latex(index=False))
-                        f.close()
+                # Round all measures for representation purposes.
+                df_performance_measures = df_performance_measures.round(5)
+                # Place 'degree' in first column for representation purposes.
+                cols = df_performance_measures.columns.tolist()
+                cols = cols[-1:] + cols[:-1]
+                df_performance_measures = df_performance_measures[cols]
+                # Rename columns for LaTex table.
+                df_performance_measures = df_performance_measures.rename(
+                    columns={
+                        "coverage_prob": "Cov. Prob.",
+                        "bandwidth": "Bandwidth",
+                        "mse_tau_hat": "MSE",
+                        "tau_hat": "Estimate",
+                        "stdev_tau_hat": "Std. Dev.",
+                    },
+                )
 
+                # Construct table from dataframe holding performance measures.
+                with open(
+                    ppj(
+                        "OUT_TABLES",
+                        "simulation_study",
+                        f"perf_meas_table_{model}_np_d_{discrete}.tex",
+                    ),
+                    "w",
+                ) as j:
+                    j.write(df_performance_measures.to_latex(index=False))
 
 end = time.time()
 print("Run took {:5.3f}s.".format(end - start))
