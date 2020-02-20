@@ -40,6 +40,18 @@ def build(ctx):
                 "simulation_study",
                 "perf_meas_table_linear_np_d_False.tex",
             ),
+            ctx.path_to(
+                ctx,
+                "OUT_TABLES",
+                "simulation_study",
+                "perf_meas_table_poly_p_d_False.tex",
+            ),
+            ctx.path_to(
+                ctx,
+                "OUT_TABLES",
+                "simulation_study",
+                "perf_meas_table_poly_np_d_False.tex",
+            ),
         ],
         name="simulation_study",
     )

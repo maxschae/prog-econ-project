@@ -175,7 +175,7 @@ if __name__ == "__main__":
     start = time.time()
 
     # Vary simulation along potential outcome models.
-    for model in ["linear"]:
+    for model in ["linear", "poly"]:
         # Run simulation for continuous and discrete data.
         for discrete in [False]:
             sim_params = fix_simulation_params(model=model, discrete=discrete)
