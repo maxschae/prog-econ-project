@@ -23,6 +23,7 @@ def build(ctx):
                 ctx, "FUNCTIONS_NONPARAMETRIC", "treatment_effect_estimation.py"
             ),
             ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "rule_of_thumb.py"),
+            ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "cross_validation.py"),
         ],
         name="simulation_study",
     )

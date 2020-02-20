@@ -1,5 +1,6 @@
 import numpy as np
-from local_linear import y_hat_local_linear
+
+from src.functions_nonparametric.local_linear import y_hat_local_linear
 
 
 def cross_validation(data, cutoff, h_grid, min_num_obs):

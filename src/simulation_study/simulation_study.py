@@ -6,6 +6,7 @@ import pandas as pd
 from data_generating_process import data_generating_process
 
 from bld.project_paths import project_paths_join as ppj
+from src.functions_nonparametric.cross_validation import cross_validation
 from src.functions_nonparametric.rule_of_thumb import rule_of_thumb
 from src.functions_nonparametric.treatment_effect_estimation import (
     estimate_treatment_effect_nonparametric,
@@ -75,9 +76,9 @@ def fix_simulation_params(
     return sim_params
 
 
-def simulate_estimator_performance(params, degree=1, parametric=True):
-    """Collect performance measures on treatment effect estimator
-    based on parametric OLS. Data stems from data generating process.
+def simulate_estimator_performance(params, degree=1, parametric=True, bandwidth=None):
+    """Collect performance measures on treatment effect estimator.
+        Data stems from data generating process.
 
     Args:
         params (dict): Contains all parameters for simulating
@@ -89,6 +90,9 @@ def simulate_estimator_performance(params, degree=1, parametric=True):
         parametric (bool): Specify whether treatment effect is estimated
                            using 'parametric' or 'non-parametric' methods.
                            Defaults to 'parametric' of degree 1.
+        bandwidth: Bandwidth used in local linear regression. Either 'cv' or'rot'
+                   indicating use of cross-validation or rule-of-thumb bandwidth
+                   selection procedure or a float directly specifying the bandwidth.
 
     Returns:
         performance_measure (dict): Holds coverage probability,
@@ -124,10 +128,35 @@ def simulate_estimator_performance(params, degree=1, parametric=True):
     elif parametric is False:
         for _ in range(params["M"]):
             data = data_generating_process(params=sim_params)
+
+            # TODO: CHOOSE RIGHT GRID FOR BANDWIDTHS S.T. KERNEL IS NOT EMPTY
+            # DOESN'T WORK LIKE THAT SO FAR
+            if bandwidth == "cv":
+                # Specify largest bandwidth taken into consideration.
+                min_value = np.absolute(
+                    pd.DataFrame.min(data["r"], axis=0) - sim_params["cutoff"]
+                )
+                max_value = np.absolute(
+                    pd.DataFrame.max(data["r"], axis=0) - sim_params["cutoff"]
+                )
+                largest_h_grid = (
+                    3 / 4 * np.minimum(np.array([min_value]), np.array([max_value]))
+                )
+                h = cross_validation(
+                    data=data,
+                    cutoff=sim_params["cutoff"],
+                    h_grid=np.linspace(start=0.1, stop=largest_h_grid[0], num=50),
+                    min_num_obs=5,
+                )
+            elif bandwidth == "rot":
+                h = rule_of_thumb(data, sim_params["cutoff"])
+            elif isinstance(bandwidth, (float, int)):
+                h = bandwidth
+            else:
+                raise ValueError("Specified bandwidth is incorrect.")
+
             out_reg = estimate_treatment_effect_nonparametric(
-                data=data,
-                cutoff=sim_params["cutoff"],
-                bandwidth=rule_of_thumb(data, sim_params["cutoff"]),
+                data=data, cutoff=sim_params["cutoff"], bandwidth=h,
             )
             tau_hat = out_reg["coef"]
             ci_lower, ci_upper = out_reg["conf_int"]
@@ -212,33 +241,36 @@ for model in ["linear"]:
                     f.close()
 
                 elif parametric is False:
-                    performance_measures.append(
-                        simulate_estimator_performance(
-                            params=sim_params, parametric=parametric
+                    for bandwidth in ["rot"]:
+                        performance_measures.append(
+                            simulate_estimator_performance(
+                                params=sim_params,
+                                parametric=parametric,
+                                bandwidth=bandwidth,
+                            )
                         )
-                    )
 
-                    df_performance_measures = pd.DataFrame.from_dict(
-                        performance_measures
-                    )
-                    df_performance_measures = df_performance_measures.round(2)
-                    df_performance_measures = df_performance_measures.rename(
-                        columns={
-                            "coverage_prob": "Cov. Prob.",
-                            "mse_tau_hat": "MSE",
-                            "tau_hat": "Estimate",
-                            "stdev_tau_hat": "Std. Dev.",
-                        },
-                    )
-                    f = open(
-                        ppj(
-                            "OUT_FIGURES",
-                            f"perf_meas_table_{model}_np_d_{discrete}_c_{cutoff}.tex",
-                        ),
-                        "w",
-                    )
-                    f.write(df_performance_measures.to_latex(index=False))
-                    f.close()
+                        df_performance_measures = pd.DataFrame.from_dict(
+                            performance_measures
+                        )
+                        df_performance_measures = df_performance_measures.round(2)
+                        df_performance_measures = df_performance_measures.rename(
+                            columns={
+                                "coverage_prob": "Cov. Prob.",
+                                "mse_tau_hat": "MSE",
+                                "tau_hat": "Estimate",
+                                "stdev_tau_hat": "Std. Dev.",
+                            },
+                        )
+                        f = open(
+                            ppj(
+                                "OUT_FIGURES",
+                                f"perf_meas_table_{model}_np_d_{discrete}_c_{cutoff}.tex",
+                            ),
+                            "w",
+                        )
+                        f.write(df_performance_measures.to_latex(index=False))
+                        f.close()
 
 
 end = time.time()
