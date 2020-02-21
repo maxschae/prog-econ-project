@@ -48,12 +48,15 @@ def estimate_treatment_effect_nonparametric(data, cutoff, bandwidth, alpha=0.05)
     y = y[np.where(weights > 0)]
     d = d[np.where(weights > 0)]
     weights = weights[np.where(weights > 0)]
+    sqrt_weights = np.sqrt(weights)
 
-    # Gather regressor values.
+    # Perform weighted least squares regression.
     r_powers = r[:, None] ** np.arange(2)
     r_powers_interact = r_powers[:, 1:] * d[:, None]
     regressors = np.column_stack((d, r_powers, r_powers_interact))
-    reg_results = sm.WLS(endog=y, exog=regressors, weights=weights).fit()
+    regressors_weighted = regressors * sqrt_weights[:, None]
+    y_weighted = y * sqrt_weights
+    reg_results = sm.OLS(endog=y_weighted, exog=regressors_weighted).fit()
 
     # Store results in a dictionary.
     reg_out = {}
