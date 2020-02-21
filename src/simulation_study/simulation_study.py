@@ -17,7 +17,7 @@ from src.functions_parametric.treatment_effect_estimation import (
 
 
 def fix_simulation_params(
-    n=1000,
+    n=500,
     M=100,
     model="linear",
     distribution="normal",

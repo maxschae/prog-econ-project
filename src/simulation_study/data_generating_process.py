@@ -52,11 +52,10 @@ def data_generating_process(params):
     elif model == "poly":
         # Obtain potential outcomes through 'poly' model.
         data["y"] = (
-            10
+            2
             + tau * data["d"]
-            + 1.1 * data["r"]
-            + 2 * (data["r"]) ** 3
-            + 0.5 * data["r"] * data["d"]
+            + 0.5 * data["r"]
+            + 4 * np.cos(data["r"])
             + np.random.normal(loc=0, scale=noise_var, size=n)
         )
 
