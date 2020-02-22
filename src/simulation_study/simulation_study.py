@@ -1,4 +1,3 @@
-import random
 import time
 
 import numpy as np
@@ -130,7 +129,6 @@ def simulate_estimator_performance(params, degree=1, parametric=True, bandwidth=
             data = data_generating_process(params=params)
 
             if bandwidth == "cv":
-                # Specify largest bandwidth taken into consideration.
                 h_pilot = rule_of_thumb(data, params["cutoff"])
                 h = cross_validation(
                     data=data,
@@ -171,7 +169,6 @@ def simulate_estimator_performance(params, degree=1, parametric=True, bandwidth=
 
 
 if __name__ == "__main__":
-    # Run simulation study.
     start = time.time()
 
     # Vary simulation along potential outcome models.
@@ -188,7 +185,7 @@ if __name__ == "__main__":
                     # Estimate parametric model with different polyonomial degrees.
                     degrees = list(range(0, 10, 1))
                     for degree in degrees:
-                        random.seed(123)
+                        np.random.seed(123)
                         performance_measures.append(
                             simulate_estimator_performance(
                                 params=sim_params, degree=degree, parametric=parametric,
@@ -233,7 +230,7 @@ if __name__ == "__main__":
                     # Estimate non-parametric model with different bandwidths.
                     bandwidths = ["rot", "cv"]
                     for bandwidth in bandwidths:
-                        random.seed(123)
+                        np.random.seed(123)
                         performance_measures.append(
                             simulate_estimator_performance(
                                 params=sim_params,
