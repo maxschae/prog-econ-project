@@ -59,7 +59,13 @@ def data_generating_process(params):
         )
 
     elif model == "nonparametric":
-        pass
+        # Obtain potential outcomes through 'nonparametric' model.
+        data["y"] = (
+            tau * data["d"]
+            + data["r"] * np.sin(4 * data["r"]) * np.cos(data["r"] * data["d"])
+            + data["r"] * data["d"]
+            + np.random.normal(loc=0, scale=noise_var, size=n)
+        )
     else:
         pass
 

@@ -48,8 +48,8 @@ def fix_simulation_params(
         raise TypeError("'n' and 'M' must be integer.")
     if isinstance(n, int) is False:
         raise TypeError("'n' must be integer.")
-    if model not in ["linear", "poly"]:
-        raise ValueError("'model' takes 'linear' or 'poly' only.")
+    if model not in ["linear", "poly", "nonparametric"]:
+        raise ValueError("'model' takes 'linear', 'poly' or 'nonparametric' only.")
     if distribution not in ["normal", "uniform"]:
         raise ValueError("'distribution' must be 'normal' or 'uniform'.")
     if isinstance(discrete, bool) is False:
@@ -175,7 +175,7 @@ if __name__ == "__main__":
     start = time.time()
 
     # Vary simulation along potential outcome models.
-    for model in ["linear", "poly"]:
+    for model in ["linear", "poly", "nonparametric"]:
         # Run simulation for continuous and discrete data.
         for discrete in [False]:
             sim_params = fix_simulation_params(model=model, discrete=discrete)
