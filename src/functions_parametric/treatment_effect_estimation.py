@@ -2,7 +2,7 @@ import numpy as np
 import statsmodels.api as sm
 
 
-def estimate_treatment_effect_parametric(data, degree=1, out="coef"):
+def estimate_treatment_effect_parametric(data, degree=1):
     """Estimate parametric model and return treatment effect
     estimate using the package statsmodels. Allow varying
     coefficients on either side of cutoff.
@@ -12,20 +12,16 @@ def estimate_treatment_effect_parametric(data, degree=1, out="coef"):
                              Column names must be 'y', 'd', 'r'.
         degree (int): Specify degree of polynomial model estimated.
                       Default is linear model, i.e. degree = 1.
-        out (str): Specify return value, either coefficient of treatment
-                   indicator or its confidence interval. Default is coef.
 
     Returns reg_out (dict):
         coef (float): Coefficient of treatment indicator.
-        coef_ci (np.ndarray): Respective 95% confidence interval.
+        conf_int (np.ndarray): Respective 95% confidence interval.
     """
 
     if {"y", "d", "r"}.issubset(data.columns) is False:
-        raise IndexError("y, d or r not in index. Cannot run regression.")
+        raise IndexError("'y', 'd' or 'r' not in index. Cannot run regression.")
     if (isinstance(degree, int) and degree >= 0) is False:
-        raise TypeError("polynomial order must be weakly positive integer.")
-    if out not in ["coef", "coef_ci"]:
-        raise ValueError(f"'{out}' is not appropriate argument value.")
+        raise ValueError("polynomial order must be weakly positive integer.")
 
     r = np.array(data["r"])
     d = np.array(data["d"])
@@ -40,6 +36,6 @@ def estimate_treatment_effect_parametric(data, degree=1, out="coef"):
     reg_out = {}
     results = sm.OLS(y, X).fit()
     reg_out["coef"] = results.params[0]
-    reg_out["coef_ci"] = results.conf_int(alpha=0.05)[0, :]
+    reg_out["conf_int"] = results.conf_int(alpha=0.05)[0, :]
 
     return reg_out

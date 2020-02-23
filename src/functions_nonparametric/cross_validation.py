@@ -1,5 +1,6 @@
 import numpy as np
-from local_linear import y_hat_local_linear
+
+from src.functions_nonparametric.local_linear import y_hat_local_linear
 
 
 def cross_validation(data, cutoff, h_grid, min_num_obs):
@@ -40,6 +41,7 @@ def cross_validation(data, cutoff, h_grid, min_num_obs):
 
     for h_index, h in enumerate(h_grid):
         intermediate_res = 0
+        runner_not_nan = 0
 
         for r_index, r_point in enumerate(data_left[:, 0]):
             training_data = np.delete(data_left, r_index, axis=0)
@@ -51,7 +53,11 @@ def cross_validation(data, cutoff, h_grid, min_num_obs):
                     x0=r_point,
                     bandwidth=h,
                 )
-                intermediate_res += (data_left[r_index, 1] - y_hat) ** 2
+                if np.isnan(y_hat):
+                    pass
+                else:
+                    intermediate_res += (data_left[r_index, 1] - y_hat) ** 2
+                    runner_not_nan += 1
             else:
                 pass
 
@@ -65,11 +71,18 @@ def cross_validation(data, cutoff, h_grid, min_num_obs):
                     x0=r_point,
                     bandwidth=h,
                 )
-                intermediate_res += (data_right[r_index, 1] - y_hat) ** 2
+                if np.isnan(y_hat):
+                    pass
+                else:
+                    intermediate_res += (data_right[r_index, 1] - y_hat) ** 2
+                    runner_not_nan += 1
             else:
                 pass
 
-        mean_squared_errors[h_index] = intermediate_res / data.shape[0]
+        if intermediate_res == 0:
+            raise ValueError("Kernel does never include any data.")
+        else:
+            mean_squared_errors[h_index] = intermediate_res / runner_not_nan
 
     h_opt = h_grid[np.argmin(mean_squared_errors)]
 

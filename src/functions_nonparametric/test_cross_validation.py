@@ -67,3 +67,13 @@ def test_cross_validation_h_opt_in_h_grid(setup_cross_validation):
         min_num_obs=setup_cross_validation["min_num_obs"],
     )
     assert np.any(setup_cross_validation["h_grid"] == calc_h_opt)
+
+
+def test_cross_validation_empty_kernel(setup_cross_validation):
+    with pytest.raises(ValueError):
+        cross_validation(
+            data=setup_cross_validation["data"],
+            cutoff=setup_cross_validation["cutoff"],
+            h_grid=np.array([0.2]),
+            min_num_obs=setup_cross_validation["min_num_obs"],
+        )
