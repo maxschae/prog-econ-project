@@ -46,9 +46,7 @@ def simulate_estimator_performance(params, degree=1, parametric=True, bandwidth=
     if parametric is True:
         for _ in range(params["M"]):
             out_reg = estimate_treatment_effect_parametric(
-                data=data_generating_process(params=params),
-                cutoff=params["cutoff"],
-                degree=degree,
+                data=data_generating_process(params=params), degree=degree,
             )
             tau_hat = out_reg["coef"]
             ci_lower, ci_upper = out_reg["conf_int"]
