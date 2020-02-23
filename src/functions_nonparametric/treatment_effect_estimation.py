@@ -50,7 +50,8 @@ def estimate_treatment_effect_nonparametric(data, cutoff, bandwidth, alpha=0.05)
     weights = weights[np.where(weights > 0)]
     sqrt_weights = np.sqrt(weights)
 
-    # Perform weighted least squares regression.
+    # Perform weighted least squares regression with centered running variable.
+    r = r - cutoff
     r_powers = r[:, None] ** np.arange(2)
     r_powers_interact = r_powers[:, 1:] * d[:, None]
     regressors = np.column_stack((d, r_powers, r_powers_interact))
