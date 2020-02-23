@@ -131,7 +131,7 @@ if __name__ == "__main__":
 
                 elif parametric is False:
                     # Estimate non-parametric model with different bandwidths.
-                    bandwidths = ["rot", "rot_under", "rot_over"]  # , "cv"
+                    bandwidths = ["rot", "rot_under", "rot_over", "cv"]
                     for bandwidth in bandwidths:
                         np.random.seed(123)
                         performance_measures.append(
