@@ -75,7 +75,7 @@ if __name__ == "__main__":
     # Vary simulation along potential outcome models.
     for model in ["linear", "poly", "nonparametric"]:
         # Run simulation for continuous and discrete data.
-        for discrete in [False]:
+        for discrete in [False, True]:
             sim_params = fix_simulation_params(model=model, discrete=discrete)
 
             # Estimate treatment effect parametrically and non-parametrically.
