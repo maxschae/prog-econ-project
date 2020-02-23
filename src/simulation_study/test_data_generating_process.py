@@ -7,14 +7,14 @@ from data_generating_process import data_generating_process
 def setup_data_generating_process():
     out = {}
 
-    out["n"] = 1000
+    out["n"] = 500
     out["M"] = 100
     out["model"] = "linear"
     out["distribution"] = "normal"
     out["discrete"] = False
-    out["cutoff"] = 10
-    out["tau"] = 10
-    out["noise_var"] = 2
+    out["cutoff"] = 0
+    out["tau"] = 0.75
+    out["noise_var"] = 1
 
     out = {"out": out}
 

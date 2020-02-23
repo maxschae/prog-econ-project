@@ -2,16 +2,10 @@ import time
 
 import numpy as np
 import pandas as pd
-from data_generating_process import data_generating_process
 
 from bld.project_paths import project_paths_join as ppj
-from src.functions_nonparametric.cross_validation import cross_validation
-from src.functions_nonparametric.rule_of_thumb import rule_of_thumb
-from src.functions_nonparametric.treatment_effect_estimation import (
-    estimate_treatment_effect_nonparametric,
-)
-from src.functions_parametric.treatment_effect_estimation import (
-    estimate_treatment_effect_parametric,
+from src.simulation_study.simulation_study_functions import (
+    simulate_estimator_performance,
 )
 
 
@@ -75,99 +69,6 @@ def fix_simulation_params(
     return sim_params
 
 
-def simulate_estimator_performance(params, degree=1, parametric=True, bandwidth=None):
-    """Collect performance measures on treatment effect estimator.
-        Data stems from data generating process.
-
-    Args:
-        params (dict): Contains all parameters for simulating
-                       artificial data in a regression discontinuity
-                       setting.
-        degree (int): Specifies degree of polynomial model fitted to
-                      data. Degree of '0' corresponds to comparison
-                      in means, '1' to the linear model. Default is 1.
-        parametric (bool): Specify whether treatment effect is estimated
-                           using 'parametric' or 'non-parametric' methods.
-                           Defaults to 'parametric' of degree 1.
-        bandwidth: Bandwidth used in local linear regression. Either 'cv' or'rot'
-                   indicating use of cross-validation or rule-of-thumb bandwidth
-                   selection procedure or a float directly specifying the bandwidth.
-
-    Returns:
-        performance_measure (dict): Holds coverage probability,
-                                    mean, standard deviation and
-                                    mean squared error of
-                                    estimator across all M repetions.
-    """
-
-    tau_hats = []
-    tau_in_conf_int = []
-
-    if parametric is True:
-        for _ in range(params["M"]):
-            out_reg = estimate_treatment_effect_parametric(
-                data=data_generating_process(params=params), degree=degree,
-            )
-            tau_hat = out_reg["coef"]
-            ci_lower, ci_upper = out_reg["conf_int"]
-
-            # Collect estimates for subsequent investigation.
-            tau_hats.append(tau_hat)
-
-            # TODO
-            if np.isnan(tau_hat):
-                raise ValueError("Estimate is nan.")
-
-            if ci_lower <= params["tau"] and params["tau"] <= ci_upper:
-                # Count if true value falls into its estimate's confidence region.
-                tau_in_conf_int.append(1)
-            else:
-                tau_in_conf_int.append(0)
-
-    elif parametric is False:
-        for _ in range(params["M"]):
-            data = data_generating_process(params=params)
-
-            if bandwidth == "cv":
-                h_pilot = rule_of_thumb(data, params["cutoff"])
-                h = cross_validation(
-                    data=data,
-                    cutoff=params["cutoff"],
-                    h_grid=np.linspace(start=0.5 * h_pilot, stop=2 * h_pilot, num=50),
-                    min_num_obs=10,
-                )
-            elif bandwidth == "rot":
-                h = rule_of_thumb(data, params["cutoff"])
-            elif isinstance(bandwidth, (float, int)):
-                h = bandwidth
-            else:
-                raise ValueError("Specified bandwidth is incorrect.")
-
-            out_reg = estimate_treatment_effect_nonparametric(
-                data=data, cutoff=params["cutoff"], bandwidth=h,
-            )
-            tau_hat = out_reg["coef"]
-            ci_lower, ci_upper = out_reg["conf_int"]
-            tau_hats.append(tau_hat)
-            if ci_lower <= params["tau"] and params["tau"] <= ci_upper:
-                tau_in_conf_int.append(1)
-            else:
-                tau_in_conf_int.append(0)
-
-    else:
-        raise TypeError("argument 'parametric' must be boolean.")
-
-    performance_measure = {}
-    performance_measure["tau_hat"] = np.mean(tau_hats)
-    performance_measure["coverage_prob"] = np.mean(tau_in_conf_int)
-    performance_measure["stdev_tau_hat"] = np.std(tau_hats)
-    performance_measure["mse_tau_hat"] = np.square(
-        np.subtract(tau_hats, params["tau"])
-    ).mean()
-
-    return performance_measure
-
-
 if __name__ == "__main__":
     start = time.time()
 
@@ -196,6 +97,8 @@ if __name__ == "__main__":
                     df_performance_measures = pd.DataFrame.from_dict(
                         performance_measures
                     )
+                    # Restrict interest to first four measures.
+                    df_performance_measures = df_performance_measures.iloc[:, :4]
                     df_performance_measures["degree"] = degrees
 
                     # Round all measures for representation purposes.
@@ -228,7 +131,7 @@ if __name__ == "__main__":
 
                 elif parametric is False:
                     # Estimate non-parametric model with different bandwidths.
-                    bandwidths = ["rot", "cv"]
+                    bandwidths = ["rot", "rot_under", "rot_over", "cv"]
                     for bandwidth in bandwidths:
                         np.random.seed(123)
                         performance_measures.append(
@@ -243,6 +146,8 @@ if __name__ == "__main__":
                     df_performance_measures = pd.DataFrame.from_dict(
                         performance_measures
                     )
+                    # Restrict interest to first four measures.
+                    df_performance_measures = df_performance_measures.iloc[:, :4]
                     df_performance_measures["bandwidth"] = bandwidths
 
                     # Round all measures for representation purposes.

@@ -28,6 +28,11 @@ def data_generating_process(params):
     if params["distribution"] == "normal":
         # Draw running variable from Gaussian distribution.
         data["r"] = np.random.normal(loc=0, scale=1, size=n)
+    elif params["distribution"] == "uniform":
+        # Draw running variable from uniform distribution.
+        data["r"] = np.random.uniform(low=-1, high=1, size=n)
+    else:
+        pass
 
     if cutoff < np.min(data["r"]) or cutoff > np.max(data["r"]):
         raise AssertionError("cutoff out of bounds.")
@@ -63,7 +68,7 @@ def data_generating_process(params):
         data["y"] = (
             tau * data["d"]
             + data["r"] * np.sin(4 * data["r"]) * np.cos(data["r"] * data["d"])
-            + data["r"] * data["d"]
+            + (1 / (1 + data["r"] * data["d"])) * 1.5
             + np.random.normal(loc=0, scale=noise_var, size=n)
         )
     else:

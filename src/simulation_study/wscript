@@ -17,9 +17,23 @@ def build(ctx):
 
     ctx(
         features="run_py_script",
+        source="simulation_study_functions.py",
+        name="simulation_study_functions",
+    )
+
+    ctx(
+        features="run_py_script",
+        source="test_simulation_study_functions.py",
+        deps=[ctx.path_to(ctx, "SIMULATION_STUDY", "simulation_study_functions.py")],
+        name="test_simulation_study_functions",
+    )
+
+    ctx(
+        features="run_py_script",
         source="simulation_study.py",
         deps=[
             ctx.path_to(ctx, "SIMULATION_STUDY", "data_generating_process.py"),
+            ctx.path_to(ctx, "SIMULATION_STUDY", "simulation_study_functions.py"),
             ctx.path_to(ctx, "FUNCTIONS_PARAMETRIC", "treatment_effect_estimation.py"),
             ctx.path_to(
                 ctx, "FUNCTIONS_NONPARAMETRIC", "treatment_effect_estimation.py"
