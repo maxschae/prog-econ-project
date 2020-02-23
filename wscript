@@ -13,6 +13,7 @@ def set_project_paths(ctx):
     pp = OrderedDict()
     pp["PROJECT_ROOT"] = "."
     pp["IN_DATA"] = "src/original_data/"
+    pp["DATA_ANALYSIS"] = "src/data_analysis/"
     pp["FUNCTIONS_NONPARAMETRIC"] = "src/functions_nonparametric"
     pp["FUNCTIONS_PARAMETRIC"] = "src/functions_parametric"
     pp["SIMULATION_STUDY"] = "src/simulation_study"

@@ -2,7 +2,7 @@ import numpy as np
 import statsmodels.api as sm
 
 
-def estimate_treatment_effect_parametric(data, degree=1):
+def estimate_treatment_effect_parametric(data, cutoff, degree=1):
     """Estimate parametric model and return treatment effect
     estimate using the package statsmodels. Allow varying
     coefficients on either side of cutoff.
@@ -10,6 +10,7 @@ def estimate_treatment_effect_parametric(data, degree=1):
     Args:
         data (pd.DataFrame): Dataframe holds regressand and regressors.
                              Column names must be 'y', 'd', 'r'.
+        cutoff (float): RDD cutoff.
         degree (int): Specify degree of polynomial model estimated.
                       Default is linear model, i.e. degree = 1.
 
@@ -19,7 +20,7 @@ def estimate_treatment_effect_parametric(data, degree=1):
     """
 
     if {"y", "d", "r"}.issubset(data.columns) is False:
-        raise IndexError("'y', 'd' or 'r' not in index. Cannot run regression.")
+        raise IndexError("'y', 'd' or 'r' not in index.")
     if (isinstance(degree, int) and degree >= 0) is False:
         raise ValueError("polynomial order must be weakly positive integer.")
 
@@ -29,13 +30,15 @@ def estimate_treatment_effect_parametric(data, degree=1):
 
     # Construct running variable polynomials of flexible degree,
     # and interactions thereof with treatment indicator.
-    r_polys = r[:, np.newaxis] ** np.arange(degree + 1)
+    # Center running variable by subtracting cutoff.
+    r_polys = (r[:, np.newaxis] - cutoff) ** np.arange(degree + 1)
     r_polys_interact = r_polys[:, 1:] * d[:, np.newaxis]
     X = np.column_stack((d, r_polys, r_polys_interact))
 
     reg_out = {}
     results = sm.OLS(y, X).fit()
     reg_out["coef"] = results.params[0]
+    reg_out["se"] = results.bse[0]
     reg_out["conf_int"] = results.conf_int(alpha=0.05)[0, :]
 
     return reg_out
