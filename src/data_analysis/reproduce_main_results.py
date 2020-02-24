@@ -26,17 +26,13 @@ data.loc[data["age"] >= cutoff, "d"] = 1
 
 def reproduce_main_result(data, outcome="ned"):
     """
-
     Args:
         data (pd.DataFrame): Must be (sub)dataset of Nekoei and Weber (2017).
-
         outcome (str): Specify for which outcome variable treatment effect
                        of another 9 weeks of unemployment insurance is estimated.
                        Outcome can be nonemployment duration 'ned' or
                        wage change 'wg_c'.
-
     Returns:
-
     """
     results = {}
 
@@ -62,7 +58,6 @@ def reproduce_main_result(data, outcome="ned"):
     data_cv_sample = data_cv_sample.loc[data_cv_sample["r"] < 43]
     data_cv_sample = data_cv_sample.loc[data_cv_sample["r"] > 37]
     data_cv_sample = data_cv_sample.sample(n=1000)
-
     h_cv = cross_validation(
                 data=data_cv_sample,
                 cutoff=cutoff,

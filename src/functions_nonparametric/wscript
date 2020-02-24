@@ -3,21 +3,7 @@
 
 def build(ctx):
     ctx(
-        features="run_py_script", source="local_linear.py", name="local_linear",
-    )
-
-    ctx(
-        features="run_py_script",
-        source="test_local_linear.py",
-        deps=[ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "local_linear.py")],
-        name="test_local_linear",
-    )
-
-    ctx(
-        features="run_py_script",
-        source="cross_validation.py",
-        deps=[ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "local_linear.py")],
-        name="cross_validation",
+        features="run_py_script", source="cross_validation.py", name="cross_validation",
     )
 
     ctx(
