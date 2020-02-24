@@ -47,6 +47,8 @@ def fix_simulation_params(
         raise ValueError("'distribution' must be 'normal' or 'uniform'.")
     if isinstance(discrete, bool) is False:
         raise TypeError("'discrete' must be type boolean.")
+    else:
+        pass
 
     sim_params = {}
 
@@ -75,7 +77,7 @@ if __name__ == "__main__":
     # Vary simulation along potential outcome models.
     for model in ["linear", "poly", "nonparametric"]:
         # Run simulation for continuous and discrete data.
-        for discrete in [False, True]:
+        for discrete in [False]:
             sim_params = fix_simulation_params(model=model, discrete=discrete)
 
             # Estimate treatment effect parametrically and non-parametrically.
@@ -84,7 +86,7 @@ if __name__ == "__main__":
 
                 if parametric is True:
                     # Estimate parametric model with different polyonomial degrees.
-                    degrees = list(range(0, 10, 1))
+                    degrees = list(range(0, 6, 1))
                     for degree in degrees:
                         np.random.seed(123)
                         performance_measures.append(
@@ -98,7 +100,9 @@ if __name__ == "__main__":
                         performance_measures
                     )
                     # Restrict interest to first four measures.
-                    df_performance_measures = df_performance_measures.iloc[:, :4]
+                    df_performance_measures = df_performance_measures.drop(
+                        "bandwidths_numeric", 1
+                    )
                     df_performance_measures["degree"] = degrees
 
                     # Round all measures for representation purposes.
@@ -110,11 +114,11 @@ if __name__ == "__main__":
                     # Rename columns for LaTex table.
                     df_performance_measures = df_performance_measures.rename(
                         columns={
-                            "coverage_prob": "Cov. Prob.",
-                            "degree": "Polynomials",
+                            "coverage_prob": "Coverage Probability",
                             "mse_tau_hat": "MSE",
                             "tau_hat": "Estimate",
-                            "stdev_tau_hat": "Std. Dev.",
+                            "stdev_tau_hat": "Standard Deviation",
+                            "degree": "Polynomial degree",
                         },
                     )
 
@@ -142,32 +146,29 @@ if __name__ == "__main__":
                             )
                         )
 
-                    # Convert dictionary to pd.DataFrame format to allow table construction.
+                    # Produce table with results on estimator performance.
                     df_performance_measures = pd.DataFrame.from_dict(
                         performance_measures
                     )
-                    # Restrict interest to first four measures.
-                    df_performance_measures = df_performance_measures.iloc[:, :4]
-                    df_performance_measures["bandwidth"] = bandwidths
-
-                    # Round all measures for representation purposes.
+                    df_performance_measures = df_performance_measures.drop(
+                        "bandwidths_numeric", 1
+                    )
+                    df_performance_measures["bandwidth_proced"] = bandwidths
                     df_performance_measures = df_performance_measures.round(5)
-                    # Place 'degree' in first column for representation purposes.
                     cols = df_performance_measures.columns.tolist()
                     cols = cols[-1:] + cols[:-1]
                     df_performance_measures = df_performance_measures[cols]
-                    # Rename columns for LaTex table.
+
                     df_performance_measures = df_performance_measures.rename(
                         columns={
-                            "coverage_prob": "Cov. Prob.",
-                            "bandwidth": "Bandwidth",
+                            "coverage_prob": "Coverage Probability",
                             "mse_tau_hat": "MSE",
                             "tau_hat": "Estimate",
-                            "stdev_tau_hat": "Std. Dev.",
+                            "stdev_tau_hat": "Standard Deviation",
+                            "bandwidth_proced": "Bandwidth procedure",
                         },
                     )
 
-                    # Construct table from dataframe holding performance measures.
                     with open(
                         ppj(
                             "OUT_TABLES",
@@ -177,6 +178,34 @@ if __name__ == "__main__":
                         "w",
                     ) as j:
                         j.write(df_performance_measures.to_latex(index=False))
+
+                    # Produce table with results on bandwidth selection procedures.
+                    df_bw_select = pd.DataFrame(
+                        columns=[
+                            "Bandwidth procedure",
+                            "Min",
+                            "Max",
+                            "Mean",
+                            "Standard Deviation",
+                        ]
+                    )
+                    df_bw_select["Bandwidth procedure"] = bandwidths
+                    for i in range(4):
+                        bw_values = performance_measures[i]["bandwidths_numeric"]
+                        df_bw_select["Min"][i] = np.min(bw_values)
+                        df_bw_select["Max"][i] = np.max(bw_values)
+                        df_bw_select["Mean"][i] = np.mean(bw_values)
+                        df_bw_select["Standard Deviation"][i] = np.std(bw_values)
+
+                    with open(
+                        ppj(
+                            "OUT_TABLES",
+                            "simulation_study",
+                            f"bw_select_table_{model}_np_d_{discrete}.tex",
+                        ),
+                        "w",
+                    ) as j:
+                        j.write(df_bw_select.to_latex(index=False))
 
     end = time.time()
     print("Run took {:5.3f}s.".format(end - start))
