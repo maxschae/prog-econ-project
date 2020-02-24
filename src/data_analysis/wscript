@@ -1,0 +1,37 @@
+#! python
+
+
+def build(ctx):
+    ctx(
+        features="run_py_script",
+        source="reproduce_main_results.py",
+        deps=[
+            ctx.path_to(ctx, "IN_DATA", "Data_public.dta"),
+            ctx.path_to(ctx, "FUNCTIONS_PARAMETRIC", "treatment_effect_estimation.py"),
+            ctx.path_to(
+                ctx, "FUNCTIONS_NONPARAMETRIC", "treatment_effect_estimation.py"
+            ),
+            ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "rule_of_thumb.py"),
+            ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "cross_validation.py"),
+        ],
+        name="reproduce_main_results",
+        target=[
+            ctx.path_to(
+                ctx,
+                "OUT_TABLES",
+                "data_analysis",
+                "reproduce_main_results_table_2.tex",
+            ),
+        ],
+    )
+
+    """
+    ctx(
+        features="run_py_script",
+        source="test_reproduce_main_results.py",
+        deps=[
+            ctx.path_to(ctx, "DATA_ANALYSIS", "reproduce_main_results.py")
+        ],
+        name="test_reproduce_main_results",
+    )
+    """
