@@ -25,13 +25,10 @@ def build(ctx):
         ],
     )
 
-    """
     ctx(
         features="run_py_script",
-        source="test_reproduce_main_results.py",
-        deps=[
-            ctx.path_to(ctx, "DATA_ANALYSIS", "reproduce_main_results.py")
-        ],
-        name="test_reproduce_main_results",
+        source="reproduce_rdd_graphs.py",
+        deps=[ctx.path_to(ctx, "IN_DATA", "Data_public_small.dta")],
+        name="reproduce_rdd_graphs",
+        target=[ctx.path_to(ctx, "OUT_FIGURES", "data_analysis", "rdd_graphs.png",)],
     )
-    """
