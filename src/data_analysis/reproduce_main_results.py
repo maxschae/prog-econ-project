@@ -13,31 +13,23 @@ from src.functions_parametric.treatment_effect_estimation import (
 
 
 # data = pd.read_stata("Data_public.dta")
-data = pd.read_stata(ppj("IN_DATA", "Data_public.dta"))
+data = pd.read_stata(ppj("IN_DATA", "Data_public_small.dta"))
 
+# Limit dataset to relevant variables only to avoid large file limit.
+# data_small = data[["monthly_wage_0", "monthly_wage_n0", "age",
+#                   "ned", "wg_c"]]
+# data_small.to_stata("Data_public_small.dta", write_index=False)
 
 # Set RDD cutoff.
 cutoff = 40
+
 
 # Assign treatment status.
 data["d"] = 0
 data.loc[data["age"] >= cutoff, "d"] = 1
 
 
-def reproduce_main_result(data, outcome="ned"):
-    """
-
-    Args:
-        data (pd.DataFrame): Must be (sub)dataset of Nekoei and Weber (2017).
-
-        outcome (str): Specify for which outcome variable treatment effect
-                       of another 9 weeks of unemployment insurance is estimated.
-                       Outcome can be nonemployment duration 'ned' or
-                       wage change 'wg_c'.
-
-    Returns:
-
-    """
+for outcome in ["ned", "wg_c"]:
     results = {}
 
     data_analysis = data.copy()
@@ -83,21 +75,28 @@ def reproduce_main_result(data, outcome="ned"):
 
     df_result = pd.DataFrame.from_dict(results)
     df_result = df_result.transpose()
-    del df_result["conf_int"]
+    df_result = df_result[["coef", "se"]]
 
-    return df_result
+    if outcome == "ned":
+        df_result_ned = df_result.copy()
+    elif outcome == "wg_c":
+        df_result_wg_c = df_result.copy()
 
 
-df_result_ned = reproduce_main_result(data=data, outcome="ned")
-df_result_wg_c = reproduce_main_result(data=data, outcome="wg_c")
-
-# df_results = pd.merge(left=df_result_ned, right=df_result_wg_c)
-df_results = df_result_ned.copy()
-
-df_results = df_results.rename(columns={"coef": "Estimate", "se": "Std. Error"})
+df_results = pd.merge(
+    left=df_result_ned, right=df_result_wg_c, left_index=True, right_index=True
+)
+df_results = df_results.rename(
+    columns={
+        "coef_x": "NE-Duration",
+        "coef_y": "Wage Change",
+        "se_x": "Std. Err.",
+        "se_y": "Std. Err.",
+    }
+)
 
 # Construct table from dataframe holding results.
 with open(
     ppj("OUT_TABLES", "data_analysis", "reproduce_main_results_table_2.tex",), "w",
 ) as j:
-    j.write(df_results.to_latex(index=False))
+    j.write(df_results.to_latex(index=True))

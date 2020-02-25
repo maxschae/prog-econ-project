@@ -6,7 +6,7 @@ def build(ctx):
         features="run_py_script",
         source="reproduce_main_results.py",
         deps=[
-            ctx.path_to(ctx, "IN_DATA", "Data_public.dta"),
+            ctx.path_to(ctx, "IN_DATA", "Data_public_small.dta"),
             ctx.path_to(ctx, "FUNCTIONS_PARAMETRIC", "treatment_effect_estimation.py"),
             ctx.path_to(
                 ctx, "FUNCTIONS_NONPARAMETRIC", "treatment_effect_estimation.py"
