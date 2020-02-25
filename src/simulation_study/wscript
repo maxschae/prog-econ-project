@@ -18,6 +18,15 @@ def build(ctx):
     ctx(
         features="run_py_script",
         source="simulation_study_functions.py",
+        deps=[
+            ctx.path_to(ctx, "SIMULATION_STUDY", "data_generating_process.py"),
+            ctx.path_to(ctx, "FUNCTIONS_PARAMETRIC", "treatment_effect_estimation.py"),
+            ctx.path_to(
+                ctx, "FUNCTIONS_NONPARAMETRIC", "treatment_effect_estimation.py"
+            ),
+            ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "rule_of_thumb.py"),
+            ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "cross_validation.py"),
+        ],
         name="simulation_study_functions",
     )
 
@@ -78,41 +87,59 @@ def build(ctx):
                 "simulation_study",
                 "perf_meas_table_nonparametric_np_d_False.tex",
             ),
+            #            ctx.path_to(
+            #                ctx,
+            #                "OUT_TABLES",
+            #                "simulation_study",
+            #                "perf_meas_table_linear_p_d_True.tex",
+            #            ),
+            #            ctx.path_to(
+            #                ctx,
+            #                "OUT_TABLES",
+            #                "simulation_study",
+            #                "perf_meas_table_linear_np_d_True.tex",
+            #            ),
+            #            ctx.path_to(
+            #                ctx,
+            #                "OUT_TABLES",
+            #                "simulation_study",
+            #                "perf_meas_table_poly_p_d_True.tex",
+            #            ),
+            #            ctx.path_to(
+            #                ctx,
+            #                "OUT_TABLES",
+            #                "simulation_study",
+            #                "perf_meas_table_poly_np_d_True.tex",
+            #            ),
+            #            ctx.path_to(
+            #                ctx,
+            #                "OUT_TABLES",
+            #                "simulation_study",
+            #                "perf_meas_table_nonparametric_p_d_True.tex",
+            #            ),
+            #            ctx.path_to(
+            #                ctx,
+            #                "OUT_TABLES",
+            #                "simulation_study",
+            #                "perf_meas_table_nonparametric_np_d_True.tex",
+            #            ),
             ctx.path_to(
                 ctx,
                 "OUT_TABLES",
                 "simulation_study",
-                "perf_meas_table_linear_p_d_True.tex",
+                "bw_select_table_linear_np_d_False.tex",
             ),
             ctx.path_to(
                 ctx,
                 "OUT_TABLES",
                 "simulation_study",
-                "perf_meas_table_linear_np_d_True.tex",
+                "bw_select_table_poly_np_d_False.tex",
             ),
             ctx.path_to(
                 ctx,
                 "OUT_TABLES",
                 "simulation_study",
-                "perf_meas_table_poly_p_d_True.tex",
-            ),
-            ctx.path_to(
-                ctx,
-                "OUT_TABLES",
-                "simulation_study",
-                "perf_meas_table_poly_np_d_True.tex",
-            ),
-            ctx.path_to(
-                ctx,
-                "OUT_TABLES",
-                "simulation_study",
-                "perf_meas_table_nonparametric_p_d_True.tex",
-            ),
-            ctx.path_to(
-                ctx,
-                "OUT_TABLES",
-                "simulation_study",
-                "perf_meas_table_nonparametric_np_d_True.tex",
+                "bw_select_table_nonparametric_np_d_False.tex",
             ),
         ],
         name="simulation_study",

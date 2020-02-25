@@ -54,7 +54,6 @@ for outcome in ["ned", "wg_c"]:
     data_cv_sample = data_cv_sample.loc[data_cv_sample["r"] < 43]
     data_cv_sample = data_cv_sample.loc[data_cv_sample["r"] > 37]
     data_cv_sample = data_cv_sample.sample(n=1000)
-
     h_cv = cross_validation(
                 data=data_cv_sample,
                 cutoff=cutoff,

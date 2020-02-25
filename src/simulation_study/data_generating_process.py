@@ -36,6 +36,8 @@ def data_generating_process(params):
 
     if cutoff < np.min(data["r"]) or cutoff > np.max(data["r"]):
         raise AssertionError("cutoff out of bounds.")
+    else:
+        pass
 
     # Assign binary treatment status.
     data["d"] = 0

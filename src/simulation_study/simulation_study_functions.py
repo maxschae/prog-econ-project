@@ -28,20 +28,19 @@ def simulate_estimator_performance(params, degree=1, parametric=True, bandwidth=
         bandwidth (str): Bandwidth used in local linear regression.
                          Either 'cv', 'rot', 'rot_under' or 'rot_over'
                          indicating use of cross-validation or rule-of-thumb
-                         bandwidth selection procedure. Also, select
-                         under- or oversmoothing of rule-of-thumb bandwidth
-                         by choosing 50% or 200% thereof.
+                         bandwidth selection procedure, rescaling the rule-of-thumb
+                         bandwidth by taking 50% or 200% of it.
 
     Returns:
-        performance_measure (dict): Holds coverage probability,
-                                    mean, standard deviation and
-                                    mean squared error of
-                                    estimator across all M repetions.
+        performance_measure (dict): Holds coverage probability, mean, standard
+                                    deviation and mean squared error of estimator
+                                    across all M repetions as well as numeric values
+                                    selected by the bandwidth procedures.
     """
 
     tau_hats = []
-    conf_ints = []
     tau_in_conf_int = []
+    bandwidths_numeric = []
 
     if parametric is True:
         for _ in range(params["M"]):
@@ -55,8 +54,6 @@ def simulate_estimator_performance(params, degree=1, parametric=True, bandwidth=
 
             # Collect estimates for subsequent investigation.
             tau_hats.append(tau_hat)
-            conf_ints.append(out_reg["conf_int"])
-
             if ci_lower <= params["tau"] and params["tau"] <= ci_upper:
                 # Count if true value falls into its estimate's confidence region.
                 tau_in_conf_int.append(1)
@@ -66,9 +63,6 @@ def simulate_estimator_performance(params, degree=1, parametric=True, bandwidth=
     elif parametric is False:
         for _ in range(params["M"]):
             data = data_generating_process(params=params)
-
-            if bandwidth not in ["cv", "rot", "rot_under", "rot_over"]:
-                raise ValueError("Specified bandwidth is incorrect.")
 
             if bandwidth == "cv":
                 h_pilot = rule_of_thumb(data, params["cutoff"])
@@ -84,8 +78,11 @@ def simulate_estimator_performance(params, degree=1, parametric=True, bandwidth=
             elif bandwidth == "rot_under":
                 h = 0.5 * rule_of_thumb(data, params["cutoff"])
 
-            else:
+            elif bandwidth == "rot_over":
                 h = 2 * rule_of_thumb(data, params["cutoff"])
+
+            else:
+                raise ValueError("The specified bandwidth procedure is incorrect.")
 
             out_reg = estimate_treatment_effect_nonparametric(
                 data=data, cutoff=params["cutoff"], bandwidth=h,
@@ -93,14 +90,14 @@ def simulate_estimator_performance(params, degree=1, parametric=True, bandwidth=
             tau_hat = out_reg["coef"]
             ci_lower, ci_upper = out_reg["conf_int"]
             tau_hats.append(tau_hat)
-            conf_ints.append(out_reg["conf_int"])
+            bandwidths_numeric.append(h)
             if ci_lower <= params["tau"] and params["tau"] <= ci_upper:
                 tau_in_conf_int.append(1)
             else:
                 tau_in_conf_int.append(0)
 
     else:
-        raise TypeError("argument 'parametric' must be boolean.")
+        raise TypeError("Argument 'parametric' must be boolean.")
 
     performance_measure = {}
     performance_measure["tau_hat"] = np.mean(tau_hats)
@@ -109,7 +106,6 @@ def simulate_estimator_performance(params, degree=1, parametric=True, bandwidth=
     performance_measure["mse_tau_hat"] = np.square(
         np.subtract(tau_hats, params["tau"])
     ).mean()
-    performance_measure["tau_hats"] = tau_hats
-    performance_measure["conf_ints"] = conf_ints
+    performance_measure["bandwidths_numeric"] = bandwidths_numeric
 
     return performance_measure
