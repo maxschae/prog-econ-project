@@ -151,3 +151,18 @@ def build(ctx):
         deps=[ctx.path_to(ctx, "SIMULATION_STUDY", "simulation_study.py")],
         name="test_simulation_study",
     )
+
+    ctx(
+        features="run_py_script",
+        source="produce_simulated_rdd_graphs.py",
+        deps=[
+            ctx.path_to(ctx, "SIMULATION_STUDY", "data_generating_process.py"),
+            ctx.path_to(ctx, "SIMULATION_STUDY", "simulation_study.py"),
+        ],
+        target=[
+            ctx.path_to(
+                ctx, "OUT_FIGURES", "simulation_study", "simulated_rdd_graphs.png",
+            ),
+        ],
+        name="produce_simulated_rdd_graphs",
+    )
