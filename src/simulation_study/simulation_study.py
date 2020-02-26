@@ -10,14 +10,7 @@ from src.simulation_study.simulation_study_functions import (
 
 
 def fix_simulation_params(
-    n=500,
-    M=100,
-    model="linear",
-    distribution="normal",
-    discrete=False,
-    cutoff=0,
-    tau=0.75,
-    noise_var=1,
+    n=500, M=100, model="linear", discrete=False, cutoff=0, tau=0.75, noise_var=1,
 ):
     """Initialize parameters for simulating potential outcome model.
 
@@ -26,7 +19,6 @@ def fix_simulation_params(
         M (int): Number of Monte Carlo repetions.
         model (str): Specify general functional form of model
                      that potential outcomes underlie.
-        distribution (str): Specify running variable's distribution.
         discrete (bool): Specify if data is discretized or not.
         cutoff (float): RDD cutoff.
         noise_var (float): Variance of error term.
@@ -43,8 +35,6 @@ def fix_simulation_params(
         raise TypeError("'n' must be integer.")
     if model not in ["linear", "poly", "nonparametric"]:
         raise ValueError("'model' takes 'linear', 'poly' or 'nonparametric' only.")
-    if distribution not in ["normal", "uniform"]:
-        raise ValueError("'distribution' must be 'normal' or 'uniform'.")
     if isinstance(discrete, bool) is False:
         raise TypeError("'discrete' must be type boolean.")
     else:
@@ -52,11 +42,8 @@ def fix_simulation_params(
 
     sim_params = {}
 
-    # Set number of Monte Carlo repetions.
+    # Set number of Monte Carlo repetions and observations.
     sim_params["M"] = M
-
-    # Fix distribution of running variable, "normal" or "uniform".
-    sim_params["distribution"] = distribution
     sim_params["n"] = n
 
     # Choose continuous or discrete data.
