@@ -10,7 +10,6 @@ def setup_data_generating_process():
     out["n"] = 500
     out["M"] = 100
     out["model"] = "linear"
-    out["distribution"] = "normal"
     out["discrete"] = False
     out["cutoff"] = 0
     out["tau"] = 0.75

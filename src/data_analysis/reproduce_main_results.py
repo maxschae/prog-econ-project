@@ -26,7 +26,9 @@ for outcome in ["ned", "wg_c"]:
 
     # Select data relevant for analysis.
     data_analysis = data.copy()
-    data_analysis = data_analysis.loc[data["ned"] < 2 * 365]
+    data_analysis = data_analysis.loc[data_analysis["ned"] < 2 * 365]
+
+    # Rename columns to align with estimation functions.
     data_analysis = data_analysis.rename(columns={outcome: "y", "age": "r"})
 
     if outcome == "wg_c":

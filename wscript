@@ -67,6 +67,7 @@ def configure(ctx):
     ctx.env.PDFLATEXFLAGS = ["-halt-on-error"]
     ctx.load("run_py_script")
     ctx.load("write_project_headers")
+    ctx.load("sphinx_build")
     # ctx.find_program("dot")
     ctx.load("tex")
 

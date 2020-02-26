@@ -13,7 +13,6 @@ def setup_simulate_estimator_performance():
     sim_params["n"] = 500
     sim_params["M"] = 100
     sim_params["model"] = "linear"
-    sim_params["distribution"] = "normal"
     sim_params["discrete"] = False
     sim_params["cutoff"] = 0
     sim_params["tau"] = 0.75
