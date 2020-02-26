@@ -27,3 +27,8 @@ dependencies:
     - pytest==5.2.0
     - pytest-cov==2.7.1
     - pytest-pythonpath==0.7.3
+
+    - sphinx==2.2.0
+    - sphinx-autobuild==0.7.1
+    - sphinx-rtd-theme==0.4.3
+    - sphinxcontrib-bibtex==1.0.0
