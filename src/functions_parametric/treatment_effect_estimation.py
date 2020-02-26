@@ -2,7 +2,7 @@ import numpy as np
 import statsmodels.api as sm
 
 
-def estimate_treatment_effect_parametric(data, cutoff, degree=1):
+def estimate_treatment_effect_parametric(data, cutoff, degree=1, alpha=0.05):
     """Estimate parametric model and return treatment effect
     estimate using the package statsmodels. Allow varying
     coefficients on either side of cutoff.
@@ -39,6 +39,7 @@ def estimate_treatment_effect_parametric(data, cutoff, degree=1):
     results = sm.OLS(y, X).fit()
     reg_out["coef"] = results.params[0]
     reg_out["se"] = results.bse[0]
-    reg_out["conf_int"] = results.conf_int(alpha=0.05)[0, :]
+    reg_out["conf_int_lower"] = results.conf_int(alpha=alpha)[0, 0]
+    reg_out["conf_int_upper"] = results.conf_int(alpha=alpha)[0, 1]
 
     return reg_out

@@ -22,6 +22,8 @@ def build(ctx):
                 "data_analysis",
                 "reproduce_main_results_table_2.tex",
             ),
+            ctx.path_to(ctx, "OUT_TABLES", "data_analysis", "plot_results_ned.dta"),
+            ctx.path_to(ctx, "OUT_TABLES", "data_analysis", "plot_results_wg_c.dta"),
         ],
     )
 
@@ -30,5 +32,30 @@ def build(ctx):
         source="reproduce_rdd_graphs.py",
         deps=[ctx.path_to(ctx, "IN_DATA", "Data_public_small.dta")],
         name="reproduce_rdd_graphs",
-        target=[ctx.path_to(ctx, "OUT_FIGURES", "data_analysis", "rdd_graphs.png",)],
+        target=[ctx.path_to(ctx, "OUT_FIGURES", "data_analysis", "rdd_graphs.png")],
+    )
+
+    ctx(
+        features="run_py_script",
+        source="treatment_effect_estimate_plot.py",
+        deps=[
+            ctx.path_to(ctx, "DATA_ANALYSIS", "reproduce_main_results.py"),
+            ctx.path_to(ctx, "OUT_TABLES", "data_analysis", "plot_results_ned.dta"),
+            ctx.path_to(ctx, "OUT_TABLES", "data_analysis", "plot_results_wg_c.dta"),
+        ],
+        name="treatment_effect_estimate_plot",
+        target=[
+            ctx.path_to(
+                ctx,
+                "OUT_FIGURES",
+                "data_analysis",
+                "treatment_effect_estimates_ned.png",
+            ),
+            ctx.path_to(
+                ctx,
+                "OUT_FIGURES",
+                "data_analysis",
+                "treatment_effect_estimates_wg_c.png",
+            ),
+        ],
     )

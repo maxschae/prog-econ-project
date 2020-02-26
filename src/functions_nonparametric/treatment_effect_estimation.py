@@ -63,6 +63,7 @@ def estimate_treatment_effect_nonparametric(data, cutoff, bandwidth, alpha=0.05)
     reg_out = {}
     reg_out["coef"] = reg_results.params[0]
     reg_out["se"] = reg_results.normalized_cov_params[0, 0]
-    reg_out["conf_int"] = reg_results.conf_int(alpha=alpha)[0, :]
+    reg_out["conf_int_lower"] = reg_results.conf_int(alpha=alpha)[0, 0]
+    reg_out["conf_int_upper"] = reg_results.conf_int(alpha=alpha)[0, 1]
 
     return reg_out

@@ -50,7 +50,8 @@ def simulate_estimator_performance(params, degree=1, parametric=True, bandwidth=
                 degree=degree,
             )
             tau_hat = out_reg["coef"]
-            ci_lower, ci_upper = out_reg["conf_int"]
+            ci_lower = out_reg["conf_int_lower"]
+            ci_upper = out_reg["conf_int_upper"]
 
             # Collect estimates for subsequent investigation.
             tau_hats.append(tau_hat)
@@ -88,7 +89,8 @@ def simulate_estimator_performance(params, degree=1, parametric=True, bandwidth=
                 data=data, cutoff=params["cutoff"], bandwidth=h,
             )
             tau_hat = out_reg["coef"]
-            ci_lower, ci_upper = out_reg["conf_int"]
+            ci_lower = out_reg["conf_int_lower"]
+            ci_upper = out_reg["conf_int_upper"]
             tau_hats.append(tau_hat)
             bandwidths_numeric.append(h)
             if ci_lower <= params["tau"] and params["tau"] <= ci_upper:
