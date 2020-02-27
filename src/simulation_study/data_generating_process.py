@@ -3,7 +3,8 @@ import pandas as pd
 
 
 def data_generating_process(params):
-    """Implement data generating process for simulation study.
+    """
+    Implement data generating process for simulation study.
     Obtain artificial data on individual-level potential outcomes
     given a sharp regression discontinuity setup.
 
@@ -11,9 +12,8 @@ def data_generating_process(params):
         params (dict): Specifies simulation parameters.
 
     Returns:
-        data (pd.DataFrame): Dataframe with data on (observed)
-                           potential outcome, treatment status,
-                           running variable.
+        pd.DataFrame: Dataframe with data on observed outcome, treatment status
+            and running variable.
     """
 
     # Obtain model parameters.

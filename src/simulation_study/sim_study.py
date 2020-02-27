@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from bld.project_paths import project_paths_join as ppj
-from src.simulation_study.simulation_study_functions import (
+from src.simulation_study.simulate_estimator_performance import (
     simulate_estimator_performance,
 )
 
@@ -12,7 +12,8 @@ from src.simulation_study.simulation_study_functions import (
 def fix_simulation_params(
     n=500, M=100, model="linear", discrete=False, cutoff=0, tau=0.75, noise_var=1,
 ):
-    """Initialize parameters for simulating potential outcome model.
+    """
+    Initialize parameters for simulating potential outcome model.
 
     Args:
         n (int): Number of observations.
@@ -24,8 +25,7 @@ def fix_simulation_params(
         noise_var (float): Variance of error term.
 
     Returns:
-        sim_params (dict): Contains all parameters for simulation study
-                           and data generating process.
+        dict: Contains all parameters for simulation study and data generating process.
     """
 
     # Check model parameters.
@@ -78,7 +78,10 @@ if __name__ == "__main__":
                         np.random.seed(123)
                         performance_measures.append(
                             simulate_estimator_performance(
-                                params=sim_params, degree=degree, parametric=parametric,
+                                params=sim_params,
+                                degree=degree,
+                                parametric=parametric,
+                                bandwidth=None,
                             )
                         )
 
@@ -128,6 +131,7 @@ if __name__ == "__main__":
                         performance_measures.append(
                             simulate_estimator_performance(
                                 params=sim_params,
+                                degree=None,
                                 parametric=parametric,
                                 bandwidth=bandwidth,
                             )

@@ -4,7 +4,7 @@ import seaborn as sns
 
 from bld.project_paths import project_paths_join as ppj
 from src.simulation_study.data_generating_process import data_generating_process
-from src.simulation_study.simulation_study import fix_simulation_params
+from src.simulation_study.sim_study import fix_simulation_params
 
 
 np.random.seed(123)

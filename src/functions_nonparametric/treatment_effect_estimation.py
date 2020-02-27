@@ -3,8 +3,10 @@ import statsmodels.api as sm
 
 
 def estimate_treatment_effect_nonparametric(data, cutoff, bandwidth, alpha=0.05):
-    """Estimate treatment effect non-parametrically with local linear
-        regression using the triangle kernel and a specified bandwidth.
+    """
+    Estimate treatment effect non-parametrically with local linear regression
+    using the triangle kernel and a specified bandwidth. Allow varying coefficients
+    on either side of the cutoff.
 
     Args:
         data (pd.DataFrame): Dataframe with data on the running variable in a
@@ -14,15 +16,12 @@ def estimate_treatment_effect_nonparametric(data, cutoff, bandwidth, alpha=0.05)
         cutoff (float): Cutpoint in the range of the running variable used to
                         distinguish between treatment and control groups.
         bandwidth (float): Bandwidth used in local linear regression.
-        alpha (float): Significance level used to construct the confidence interval.
+        alpha (float): Significance level used to construct confidence intervals.
 
     Returns:
-        reg_out (dict):
-            coef (float): Treatment effect estimate.
-            se (float): Standard error of the treatment effect estimate.
-            conf_int (np.array): (1-alpha)-confidence interval of the treatment
-                                    effect estimate.
+        dict: Dictionary containing estimation results.
     """
+
     if bandwidth <= 0:
         raise ValueError("The specified bandwidth must be positive.")
     else:

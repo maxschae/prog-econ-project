@@ -17,7 +17,7 @@ def build(ctx):
 
     ctx(
         features="run_py_script",
-        source="simulation_study_functions.py",
+        source="simulate_estimator_performance.py",
         deps=[
             ctx.path_to(ctx, "SIMULATION_STUDY", "data_generating_process.py"),
             ctx.path_to(ctx, "FUNCTIONS_PARAMETRIC", "treatment_effect_estimation.py"),
@@ -27,22 +27,24 @@ def build(ctx):
             ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "rule_of_thumb.py"),
             ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "cross_validation.py"),
         ],
-        name="simulation_study_functions",
+        name="simulate_estimator_performance",
     )
 
     ctx(
         features="run_py_script",
-        source="test_simulation_study_functions.py",
-        deps=[ctx.path_to(ctx, "SIMULATION_STUDY", "simulation_study_functions.py")],
-        name="test_simulation_study_functions",
+        source="test_simulate_estimator_performance.py",
+        deps=[
+            ctx.path_to(ctx, "SIMULATION_STUDY", "simulate_estimator_performance.py")
+        ],
+        name="test_simulate_estimator_performance",
     )
 
     ctx(
         features="run_py_script",
-        source="simulation_study.py",
+        source="sim_study.py",
         deps=[
             ctx.path_to(ctx, "SIMULATION_STUDY", "data_generating_process.py"),
-            ctx.path_to(ctx, "SIMULATION_STUDY", "simulation_study_functions.py"),
+            ctx.path_to(ctx, "SIMULATION_STUDY", "simulate_estimator_performance.py"),
             ctx.path_to(ctx, "FUNCTIONS_PARAMETRIC", "treatment_effect_estimation.py"),
             ctx.path_to(
                 ctx, "FUNCTIONS_NONPARAMETRIC", "treatment_effect_estimation.py"
@@ -142,14 +144,14 @@ def build(ctx):
                 "bw_select_table_nonparametric_np_d_False.tex",
             ),
         ],
-        name="simulation_study",
+        name="sim_study",
     )
 
     ctx(
         features="run_py_script",
-        source="test_simulation_study.py",
-        deps=[ctx.path_to(ctx, "SIMULATION_STUDY", "simulation_study.py")],
-        name="test_simulation_study",
+        source="test_sim_study.py",
+        deps=[ctx.path_to(ctx, "SIMULATION_STUDY", "sim_study.py")],
+        name="test_sim_study",
     )
 
     ctx(
@@ -157,7 +159,7 @@ def build(ctx):
         source="produce_simulated_rdd_graphs.py",
         deps=[
             ctx.path_to(ctx, "SIMULATION_STUDY", "data_generating_process.py"),
-            ctx.path_to(ctx, "SIMULATION_STUDY", "simulation_study.py"),
+            ctx.path_to(ctx, "SIMULATION_STUDY", "sim_study.py"),
         ],
         target=[
             ctx.path_to(

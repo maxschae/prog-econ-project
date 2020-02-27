@@ -4,8 +4,9 @@ import numpy as np
 
 @numba.jit(nopython=True)
 def y_hat_local_linear(x, y, x0, bandwidth):
-    """ Perform local linear regression with the triangle kernel to
-        predict the value of the dependent variable at some point x0.
+    """
+    Perform local linear regression with the triangle kernel to
+    predict the value of the dependent variable at some point x0.
 
     Args:
         x (np.array): Array containing regressor values used for regression.
@@ -14,7 +15,7 @@ def y_hat_local_linear(x, y, x0, bandwidth):
         bandwidth (float): Range of data the kernel uses to assign weights.
 
     Returns:
-        y0_hat (float): Predicted value of the dependent variable at x0.
+        float: Predicted value of the dependent variable at x0.
     """
 
     if bandwidth <= 0:
@@ -55,10 +56,11 @@ def y_hat_local_linear(x, y, x0, bandwidth):
 
 
 def cross_validation(data, cutoff, h_grid, min_num_obs):
-    """ Perform leave-one-out cross-validation to select the mean squared error
-        optimal bandwidth used in local linear regression out of a given grid.
-        The procedure is tailored to the RDD context and follows the ideas of
-        Ludwig and Miller (2005) and Imbens and Lemieux (2008).
+    """
+    Perform leave-one-out cross-validation to select the mean squared error
+    optimal bandwidth used in local linear regression out of a given grid.
+    The procedure is tailored to the RDD context and follows the ideas of
+    Ludwig and Miller (2005) and Imbens and Lemieux (2008).
 
     Args:
         data (pd.DataFrame): Dataframe with data on the running variable in a
@@ -71,7 +73,7 @@ def cross_validation(data, cutoff, h_grid, min_num_obs):
                             data at a particular point.
 
     Returns:
-        h_opt (float): Mean squared error optimal bandwidth out of h_grid.
+        float: Mean squared error optimal bandwidth out of h_grid.
     """
 
     if np.any(h_grid <= 0):

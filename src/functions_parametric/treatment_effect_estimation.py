@@ -3,7 +3,8 @@ import statsmodels.api as sm
 
 
 def estimate_treatment_effect_parametric(data, cutoff, degree=1, alpha=0.05):
-    """Estimate parametric model and return treatment effect
+    """
+    Estimate parametric model and return treatment effect
     estimate using the package statsmodels. Allow varying
     coefficients on either side of cutoff.
 
@@ -13,10 +14,10 @@ def estimate_treatment_effect_parametric(data, cutoff, degree=1, alpha=0.05):
         cutoff (float): RDD cutoff.
         degree (int): Specify degree of polynomial model estimated.
                       Default is linear model, i.e. degree = 1.
+        alpha (float): Significance level used to construct confidence intervals.
 
-    Returns reg_out (dict):
-        coef (float): Coefficient of treatment indicator.
-        conf_int (np.ndarray): Respective 95% confidence interval.
+    Returns:
+        dict: Dictionary containing estimation results.
     """
 
     if {"y", "d", "r"}.issubset(data.columns) is False:

@@ -1,5 +1,5 @@
 import pytest
-from simulation_study import fix_simulation_params
+from sim_study import fix_simulation_params
 
 
 @pytest.fixture

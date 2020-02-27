@@ -9,6 +9,8 @@ Welcome to the prog-econ-project's documentation!
 
     introduction
     paper
+    functions_nonparametric
+    functions_parametric
     simulation_study
     original_data
     data_analysis

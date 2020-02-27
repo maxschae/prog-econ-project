@@ -1,6 +1,6 @@
 import pytest
 
-from src.simulation_study.simulation_study_functions import (
+from src.simulation_study.simulate_estimator_performance import (
     simulate_estimator_performance,
 )
 

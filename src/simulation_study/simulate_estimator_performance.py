@@ -1,5 +1,4 @@
 import numpy as np
-from data_generating_process import data_generating_process
 
 from src.functions_nonparametric.cross_validation import cross_validation
 from src.functions_nonparametric.rule_of_thumb import rule_of_thumb
@@ -9,11 +8,13 @@ from src.functions_nonparametric.treatment_effect_estimation import (
 from src.functions_parametric.treatment_effect_estimation import (
     estimate_treatment_effect_parametric,
 )
+from src.simulation_study.data_generating_process import data_generating_process
 
 
-def simulate_estimator_performance(params, degree=1, parametric=True, bandwidth="rot"):
-    """Collect performance measures on treatment effect estimator.
-        Data stems from data generating process.
+def simulate_estimator_performance(params, degree, parametric, bandwidth):
+    """
+    Collect performance measures on treatment effect estimator.
+    Data stems from data generating process.
 
     Args:
         params (dict): Contains all parameters for simulating
@@ -32,10 +33,9 @@ def simulate_estimator_performance(params, degree=1, parametric=True, bandwidth=
                          bandwidth by taking 50% or 200% of it.
 
     Returns:
-        performance_measure (dict): Holds coverage probability, mean, standard
-                                    deviation and mean squared error of estimator
-                                    across all M repetions as well as numeric values
-                                    selected by the bandwidth procedures.
+        dict: Dictionary containing coverage probability, mean, standard
+            deviation and mean squared error of estimator across all M repetions
+            as well as numeric values selected by the bandwidth procedures.
     """
 
     tau_hats = []
