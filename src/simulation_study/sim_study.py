@@ -10,7 +10,7 @@ from src.simulation_study.simulate_estimator_performance import (
 
 
 def fix_simulation_params(
-    n=500, M=100, model="linear", discrete=False, cutoff=0, tau=0.75, noise_var=1,
+    n=500, M=250, model="linear", discrete=False, cutoff=0, tau=0.75, noise_var=1,
 ):
     """
     Initialize parameters for simulating potential outcome model.

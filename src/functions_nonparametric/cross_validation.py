@@ -9,8 +9,10 @@ def y_hat_local_linear(x, y, x0, bandwidth):
     predict the value of the dependent variable at some point x0.
 
     Args:
-        x (np.array): Array containing regressor values used for regression.
-        y (np.array): Array containing dependent variable used for regression.
+        x (np.array): Array of type np.float64 containing regressor values used
+                    for regression.
+        y (np.array): Array of type np.float64 containing dependent variable used
+                    for regression.
         x0 (float): Value at which local linear regression is calculated.
         bandwidth (float): Range of data the kernel uses to assign weights.
 
@@ -65,7 +67,7 @@ def cross_validation(data, cutoff, h_grid, min_num_obs):
     Args:
         data (pd.DataFrame): Dataframe with data on the running variable in a
                             column called "r" and data on the dependent variable
-                            in a column called "y".
+                            in a column called "y", both of type np.float64.
         cutoff (float): Cutpoint in the range of the running variable used to
                         distinguish between treatment and control groups.
         h_grid (np.array): Grid of bandwidths taken into consideration.

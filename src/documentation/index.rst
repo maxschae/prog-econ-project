@@ -14,5 +14,4 @@ Welcome to the prog-econ-project's documentation!
     simulation_study
     original_data
     data_analysis
-    library
     references

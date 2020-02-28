@@ -48,8 +48,8 @@ for outcome in ["ned", "wg_c"]:
     data_cv_sample = data_analysis.copy()
     data_cv_sample = data_cv_sample.loc[data_cv_sample["r"] < 43]
     data_cv_sample = data_cv_sample.loc[data_cv_sample["r"] > 37]
-    data_cv_sample = data_cv_sample.sample(n=1000)
-    h_grid = np.linspace(start=0.5 * h_rot, stop=2 * h_rot, num=32)
+    data_cv_sample = data_cv_sample.sample(n=2000)
+    h_grid = np.linspace(start=0.5 * h_rot, stop=10, num=32)
     h_cv = cross_validation(
         data=data_cv_sample, cutoff=cutoff, h_grid=h_grid, min_num_obs=10,
     )
