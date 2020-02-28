@@ -35,7 +35,7 @@ def y_hat_local_linear(x, y, x0, bandwidth):
     weights = weights[np.where(weights > 0)]
     sqrt_weights = np.sqrt(weights)
 
-    # In case of sparse data in range of kernel return nan.
+    # In case of sparse data in the range of the kernel return nan.
     if x.shape[0] < 2:
         return np.nan
     else:
@@ -82,8 +82,8 @@ def cross_validation(data, cutoff, h_grid, min_num_obs):
         pass
 
     data = data[["r", "y"]]
-    data_left = np.array(data[data["r"] <= cutoff])
-    data_right = np.array(data[data["r"] > cutoff])
+    data_left = np.array(data[data["r"] < cutoff])
+    data_right = np.array(data[data["r"] >= cutoff])
 
     if data_left.size == 0 or data_right.size == 0:
         raise ValueError("Cutoff must lie within range of the running variable.")
