@@ -46,16 +46,7 @@ def build(ctx):
         name="treatment_effect_estimate_plot",
         target=[
             ctx.path_to(
-                ctx,
-                "OUT_FIGURES",
-                "data_analysis",
-                "treatment_effect_estimates_ned.png",
-            ),
-            ctx.path_to(
-                ctx,
-                "OUT_FIGURES",
-                "data_analysis",
-                "treatment_effect_estimates_wg_c.png",
+                ctx, "OUT_FIGURES", "data_analysis", "treatment_effect_estimates.png",
             ),
         ],
     )
