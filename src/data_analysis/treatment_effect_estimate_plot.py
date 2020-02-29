@@ -4,7 +4,7 @@ import pandas as pd
 from bld.project_paths import project_paths_join as ppj
 
 
-# Create plots.
+# Create plot for performance of different bandwidths.
 fig, ax = plt.subplots(figsize=(12, 7.5), sharex=True)
 plt.subplots_adjust(wspace=0.3)
 plot_dict = {"221": "ned", "222": "wg_c"}
@@ -62,17 +62,19 @@ for subplot in plot_dict.keys():
     line_cv = plt.axvline(
         x=h_cv, linestyle="dashdot", color="green", label="Cross-validation bandwidth",
     )
-    plt.xlabel("Bandwidth", size=12)
-    plt.ylabel("Treatment effect estimate", size=12)
+    plt.xlabel("Bandwidth", size=14)
 
-    # Customize subplot's title and label for different outcomes.
     if plot_dict[subplot] == "ned":
-        plt.title("Non-employment duration", size=16, loc="center")
+        plt.title("Panel A", size=16, loc="left")
+        plt.ylabel("Non-employment duration", size=14)
+
     elif plot_dict[subplot] == "wg_c":
-        plt.title("Wage change", size=16, loc="center")
+        plt.title("Panel B", size=16, loc="left")
+        plt.ylabel("Wage change", size=14)
     else:
         pass
 
+# Create legend and adjust scaling to fit it completely outside the plot.
 box = ax.get_position()
 ax.set_position([box.x0, box.y0, box.width * 0.75, box.height])
 plt.legend(
@@ -80,10 +82,8 @@ plt.legend(
     ("Global linear", "Global quadratic", "Rule-of-Thumb", "Cross-validation"),
     loc="center left",
     bbox_to_anchor=(1, 0.5),
+    fontsize=10,
 )
-
-# Adjust the scaling factor to fit your legend text completely outside the plot
-# (smaller value results in more space being made for the legend)
 fig.subplots_adjust(right=0.85)
 
 fig.savefig(ppj("OUT_FIGURES", "data_analysis", f"treatment_effect_estimates.png"))
