@@ -4,12 +4,13 @@ import pandas as pd
 
 def rule_of_thumb(data, cutoff):
     """
-    Calculate mean squared error optimal bandwidth to be used in local
+    Calculate the mean squared error optimal bandwidth to be used in local
     linear regression with a rule-of-thumb procedure developed by
     Fan and Gijbels (1996) and modified for the context of Regression
-    Discontinuity Design by Imbens and Kalyanaraman (2009). The procedure
-    is tailored for local linear regression using the boundary optimal
-    triangle kernel.
+    Discontinuity Design by Imbens and Kalyanaraman (2009). The procedure plugs
+    parameter estimates from the data into a formula for the mean squared error
+    optimal bandwidth and is tailored for local linear regression using the
+    boundary optimal triangle kernel.
 
     Args:
         data (pd.DataFrame): Dataframe with data on the running variable in a

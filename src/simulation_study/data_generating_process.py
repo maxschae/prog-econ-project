@@ -4,16 +4,19 @@ import pandas as pd
 
 def data_generating_process(params):
     """
-    Implement data generating process for simulation study.
-    Obtain artificial data on individual-level potential outcomes
-    given a sharp regression discontinuity setup.
+    Implementation of the data generating process in the simulation study.
+    Obtain artificial data on individual-level variables given a sharp Regression
+    Discontinuity setup for one of the following three model specifications:
+    a linear relationship between outcome and running variable, a fourth-order
+    polynomial one or a non-polynomial relationship.
 
     Args:
-        params (dict): Specifies simulation parameters.
+        params (dict): Dictionary holding the simulation parameters.
 
     Returns:
-        pd.DataFrame: Dataframe with data on observed outcome, treatment status
-            and running variable.
+        pd.DataFrame: Dataframe with data on "r", "d" and "y" -
+                the running variable, treatment status and observed outcome for
+                each individual.
     """
 
     # Obtain model parameters.
@@ -29,7 +32,7 @@ def data_generating_process(params):
     data["r"] = np.random.normal(loc=0, scale=1, size=n)
 
     if cutoff < np.min(data["r"]) or cutoff > np.max(data["r"]):
-        raise AssertionError("cutoff out of bounds.")
+        raise AssertionError("Cutoff out of bounds.")
     else:
         pass
 
@@ -101,9 +104,11 @@ def data_generating_process(params):
         # Mean of treatment indicator across bins must be zero or one.
         d_means = np.array(data_discrete["d"].dropna().drop_duplicates())
         if len(d_means) > 2:
-            raise ValueError("a bin contains both treatment and control observations.")
+            raise ValueError("A bin contains both treatment and control observations.")
         if np.array_equal(d_means, np.array([0, 1])) is False:
-            raise ValueError("a bin contains both treatment and control observations.")
+            raise ValueError("A bin contains both treatment and control observations.")
+        else:
+            pass
 
         return data_discrete
 

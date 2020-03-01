@@ -1,10 +1,10 @@
 .. _paper:
 
-******************************
-Research paper / presentations
-******************************
+**************
+Research paper
+**************
 
-
-Purpose of the different files (rename them to your liking):
-
-    * EXAMPLE contains the actual paper.
+In **src.paper** we include a research paper containing a more detailed description
+and results of our comparative study of parametric and non-parametric treatment effect
+estimation methods in Regression Discontinuity Design. It is written with LaTex
+in *research_paper.tex*.

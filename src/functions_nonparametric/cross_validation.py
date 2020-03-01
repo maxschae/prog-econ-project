@@ -5,15 +5,17 @@ import numpy as np
 @numba.jit(nopython=True)
 def y_hat_local_linear(x, y, x0, bandwidth):
     """
-    Perform local linear regression with the triangle kernel to
-    predict the value of the dependent variable at some point x0.
+    Perform local linear regression with the triangle kernel and a specified
+    bandwidth to predict the value of the dependent variable at some point x0.
+    The function is used in cross-validation to predict the value of the outcome
+    variable at the hold-out observation.
 
     Args:
         x (np.array): Array of type np.float64 containing regressor values used
                     for regression.
         y (np.array): Array of type np.float64 containing dependent variable used
                     for regression.
-        x0 (float): Value at which local linear regression is calculated.
+        x0 (float): Regressor value at which value of outcome variable is predicted.
         bandwidth (float): Range of data the kernel uses to assign weights.
 
     Returns:
@@ -61,8 +63,8 @@ def cross_validation(data, cutoff, h_grid, min_num_obs):
     """
     Perform leave-one-out cross-validation to select the mean squared error
     optimal bandwidth used in local linear regression out of a given grid.
-    The procedure is tailored to the RDD context and follows the ideas of
-    Ludwig and Miller (2005) and Imbens and Lemieux (2008).
+    The procedure is tailored for the context of Regression Discontinuity Design
+    and follows the ideas of Ludwig and Miller (2005) and Imbens and Lemieux (2008).
 
     Args:
         data (pd.DataFrame): Dataframe with data on the running variable in a
@@ -71,8 +73,8 @@ def cross_validation(data, cutoff, h_grid, min_num_obs):
         cutoff (float): Cutpoint in the range of the running variable used to
                         distinguish between treatment and control groups.
         h_grid (np.array): Grid of bandwidths taken into consideration.
-        min_num_obs (float): Minimum number of observations used for fitting the
-                            data at a particular point.
+        min_num_obs (int): Minimum number of observations required for fitting
+                            the data at a particular point.
 
     Returns:
         float: Mean squared error optimal bandwidth out of h_grid.

@@ -13,19 +13,23 @@ def fix_simulation_params(
     n=500, M=250, model="linear", discrete=False, cutoff=0, tau=0.75, noise_var=1,
 ):
     """
-    Initialize parameters for simulating potential outcome model.
+    Collect parameters for simulating potential outcome model in a dictionary.
+    The dictionary forms the basis for the actual simulation in the
+    data_generating_process function.
 
     Args:
         n (int): Number of observations.
-        M (int): Number of Monte Carlo repetions.
-        model (str): Specify general functional form of model
-                     that potential outcomes underlie.
-        discrete (bool): Specify if data is discretized or not.
-        cutoff (float): RDD cutoff.
-        noise_var (float): Variance of error term.
+        M (int): Number of Monte Carlo repetitions.
+        model (str): General functional form of the model that potential outcomes
+                underlie. Possibilities are "linear", "poly" and "nonparametric".
+        discrete (bool): Indication if data is discretized or not.
+        cutoff (float): Cutpoint in the range of the running variable used to
+                    distinguish between treatment and control groups.
+        tau (float): True value of the treatment effect.
+        noise_var (float): Variance of error term determining noise in the model.
 
     Returns:
-        dict: Contains all parameters for simulation study and data generating process.
+        dict: Dictionary holding simulation parameters.
     """
 
     # Check model parameters.
@@ -42,14 +46,14 @@ def fix_simulation_params(
 
     sim_params = {}
 
-    # Set number of Monte Carlo repetions and observations.
+    # Set number of Monte Carlo repetitions and observations.
     sim_params["M"] = M
     sim_params["n"] = n
 
     # Choose continuous or discrete data.
     sim_params["discrete"] = discrete
 
-    # Fix parameters of model that describes potential outcomes.
+    # Fix parameters of model that describe potential outcomes.
     sim_params["model"] = model
     sim_params["cutoff"] = cutoff
     sim_params["tau"] = tau
@@ -96,7 +100,7 @@ if __name__ == "__main__":
                     df_performance_measures["degree"] = degrees
 
                     # Round all measures for representation purposes.
-                    df_performance_measures = df_performance_measures.round(5)
+                    df_performance_measures = df_performance_measures.round(3)
                     # Place 'degree' in first column for representation purposes.
                     cols = df_performance_measures.columns.tolist()
                     cols = cols[-1:] + cols[:-1]
@@ -104,10 +108,10 @@ if __name__ == "__main__":
                     # Rename columns for LaTex table.
                     df_performance_measures = df_performance_measures.rename(
                         columns={
-                            "coverage_prob": "Coverage Probability",
+                            "coverage_prob": "Cov. Prob.",
                             "mse_tau_hat": "MSE",
                             "tau_hat": "Estimate",
-                            "stdev_tau_hat": "Standard Deviation",
+                            "stdev_tau_hat": "Std. Dev.",
                             "degree": "Polynomial degree",
                         },
                     )
@@ -145,17 +149,19 @@ if __name__ == "__main__":
                         "bandwidths_numeric", 1
                     )
                     df_performance_measures["bandwidth_proced"] = bandwidths
-                    df_performance_measures = df_performance_measures.round(5)
+                    df_performance_measures = df_performance_measures.round(3)
+                    # Place 'bandwidth procedure' in first column of table.
                     cols = df_performance_measures.columns.tolist()
                     cols = cols[-1:] + cols[:-1]
                     df_performance_measures = df_performance_measures[cols]
 
+                    # Rename columns of LaTex table.
                     df_performance_measures = df_performance_measures.rename(
                         columns={
-                            "coverage_prob": "Coverage Probability",
+                            "coverage_prob": "Cov. Prob.",
                             "mse_tau_hat": "MSE",
                             "tau_hat": "Estimate",
-                            "stdev_tau_hat": "Standard Deviation",
+                            "stdev_tau_hat": "Std. Dev.",
                             "bandwidth_proced": "Bandwidth procedure",
                         },
                     )
@@ -177,8 +183,8 @@ if __name__ == "__main__":
                             "Min",
                             "Max",
                             "Mean",
-                            "Standard Deviation",
-                        ]
+                            "Std. Dev.",
+                        ],
                     )
                     df_bw_select["Bandwidth procedure"] = bandwidths
                     for i in range(4):
@@ -186,7 +192,8 @@ if __name__ == "__main__":
                         df_bw_select["Min"][i] = np.min(bw_values)
                         df_bw_select["Max"][i] = np.max(bw_values)
                         df_bw_select["Mean"][i] = np.mean(bw_values)
-                        df_bw_select["Standard Deviation"][i] = np.std(bw_values)
+                        df_bw_select["Std. Dev."][i] = np.std(bw_values)
+                    df_bw_select = df_bw_select.round(3)
 
                     with open(
                         ppj(

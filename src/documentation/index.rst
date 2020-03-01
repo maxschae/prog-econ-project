@@ -8,10 +8,10 @@ Welcome to the prog-econ-project's documentation!
     :maxdepth: 2
 
     introduction
-    paper
-    functions_nonparametric
     functions_parametric
+    functions_nonparametric
     simulation_study
-    original_data
     data_analysis
+    original_data
+    paper
     references

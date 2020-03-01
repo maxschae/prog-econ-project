@@ -34,7 +34,7 @@ extensions = [
 
 # Napoleon settings
 napoleon_google_docstring = True
-napoleon_numpy_docstring = False
+napoleon_numpy_docstring = True
 napoleon_include_init_with_doc = False
 napoleon_include_private_with_doc = False
 napoleon_include_special_with_doc = True
@@ -193,9 +193,12 @@ latex_elements = {
     # The font size ("10pt", "11pt" or "12pt").
     "pointsize": "11pt",
     # Remove the "Release ..." subtitle from the LaTeX frontpage.
-    "releasename": ""
+    "releasename": "",
     # Additional stuff for the LaTeX preamble.
     # "preamble": "",
+    # No blank pages.
+    "extraclassoptions": "openany, oneside",
+    "babel": r"\usepackage[english]{babel}",
 }
 
 # Grouping the document tree into LaTeX files. List of tuples

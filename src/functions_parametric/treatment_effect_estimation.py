@@ -4,17 +4,20 @@ import statsmodels.api as sm
 
 def estimate_treatment_effect_parametric(data, cutoff, degree=1, alpha=0.05):
     """
-    Estimate parametric model and return treatment effect
-    estimate using the package statsmodels. Allow varying
-    coefficients on either side of cutoff.
+    Estimate treatment effect parametrically with global polynomial fitting of a
+    specified degree. Allow varying coefficients on either side of the cutoff and
+    center the running variable by subtracting the cutoff before estimation.
 
     Args:
-        data (pd.DataFrame): Dataframe holds regressand and regressors.
-                             Column names must be 'y', 'd', 'r'.
-        cutoff (float): RDD cutoff.
-        degree (int): Specify degree of polynomial model estimated.
-                      Default is linear model, i.e. degree = 1.
+        data (pd.DataFrame): Dataframe with data on the running variable in a
+                            column called "r", data on the dependent variable
+                            in a column called "y" and data on the treatment
+                            status in a column called "d".
+        cutoff (float): Cutpoint in the range of the running variable used to
+                        distinguish between treatment and control groups.
+        degree (int): Degree of polynomial used for fitting. Default is linear model.
         alpha (float): Significance level used to construct confidence intervals.
+                        Default is 0.05.
 
     Returns:
         dict: Dictionary containing estimation results.
@@ -24,6 +27,8 @@ def estimate_treatment_effect_parametric(data, cutoff, degree=1, alpha=0.05):
         raise IndexError("'y', 'd' or 'r' not in index.")
     if (isinstance(degree, int) and degree >= 0) is False:
         raise ValueError("polynomial order must be weakly positive integer.")
+    else:
+        pass
 
     r = np.array(data["r"])
     d = np.array(data["d"])

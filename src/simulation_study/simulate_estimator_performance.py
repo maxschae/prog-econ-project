@@ -13,29 +13,27 @@ from src.simulation_study.data_generating_process import data_generating_process
 
 def simulate_estimator_performance(params, degree, parametric, bandwidth):
     """
-    Collect performance measures on treatment effect estimator.
-    Data stems from data generating process.
+    Collect performance measures on the specified treatment effect estimator applied
+    to data simulated with the data_generating_process function. The function works
+    for parametric as well as non-parametric treatment effect estimation methods.
 
     Args:
-        params (dict): Contains all parameters for simulating
-                       artificial data in a regression discontinuity
-                       setting.
-        degree (int): Specifies degree of polynomial model fitted to
-                      data. Degree of '0' corresponds to comparison
-                      in means, '1' to the linear model. Default is 1.
-        parametric (bool): Specify whether treatment effect is estimated
-                           using 'parametric' or 'non-parametric' methods.
-                           Defaults to 'parametric' of degree 1.
-        bandwidth (str): Bandwidth used in local linear regression.
-                         Either 'cv', 'rot', 'rot_under' or 'rot_over'
-                         indicating use of cross-validation or rule-of-thumb
-                         bandwidth selection procedure, rescaling the rule-of-thumb
-                         bandwidth by taking 50% or 200% of it.
+        params (dict): Dictionary containing simulation parameters.
+        degree (int): Degree of polynomial used for global polynomial fitting.
+                        A degree of "0" corresponds to a comparison in means.
+        parametric (bool): Indication whether the treatment effect is estimated
+                           using parametric or non-parametric methods.
+        bandwidth (str): Bandwidth used in local linear regression. Options are
+                        leave-one-out cross-validation "cv", the rule-of-thumb
+                        bandwidth selection procedure "rot" or rescaling of the
+                        rule-of-thumb bandwidth by taking 50% or 200% of it,
+                        "rot_under" or "rot_over", respectively.
 
     Returns:
-        dict: Dictionary containing coverage probability, mean, standard
-            deviation and mean squared error of estimator across all M repetions
-            as well as numeric values selected by the bandwidth procedures.
+        dict: Dictionary containing measures for descriptive statistics -
+            the coverage probability, mean, standard deviation and mean squared
+            error of the estimator across all Monte Carlo repetitions as well as
+            numeric values of the bandwidths selected by the single procedures.
     """
 
     tau_hats = []

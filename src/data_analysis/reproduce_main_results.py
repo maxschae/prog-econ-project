@@ -71,9 +71,12 @@ for outcome in ["ned", "wg_c"]:
     df_result = pd.DataFrame.from_dict(results)
     df_result = df_result.transpose()
 
+    # Collect results for regression table and round the numbers.
     df_table_result = df_result[["coef", "se"]]
     df_table_result = df_table_result.iloc[:7, :]
+    df_table_result = df_table_result.round(4)
 
+    # Collect results used in the plots considering bandwidth performance.
     df_plot_result = df_result[["coef", "conf_int_lower", "conf_int_upper"]]
     df_plot_result["bandwidth"] = np.nan
     df_plot_result.loc["Rule-of-Thumb", "bandwidth"] = h_rot
