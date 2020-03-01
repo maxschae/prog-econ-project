@@ -20,7 +20,7 @@ def simulate_estimator_performance(params, degree, parametric, bandwidth):
     Args:
         params (dict): Dictionary containing simulation parameters.
         degree (int): Degree of polynomial used for global polynomial fitting.
-                        A degree of "0" corresponds to a comparison in means.
+                        A degree of 0 corresponds to a comparison in means.
         parametric (bool): Indication whether the treatment effect is estimated
                            using parametric or non-parametric methods.
         bandwidth (str): Bandwidth used in local linear regression. Options are

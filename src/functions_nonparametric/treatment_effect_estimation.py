@@ -45,7 +45,7 @@ def estimate_treatment_effect_nonparametric(data, cutoff, bandwidth, alpha=0.05)
     else:
         pass
 
-    # Consider only datapoints with positive weight.
+    # Consider only datapoints with positive weight to reduce computation time.
     r = r[np.where(weights > 0)]
     y = y[np.where(weights > 0)]
     d = d[np.where(weights > 0)]

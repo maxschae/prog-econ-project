@@ -6,10 +6,10 @@ Simulation Study
 
 The code in **src.simulation_study** constitutes the main part of analysis for
 evaluating the performance of parametric treatment effect estimators towards
-non-parametric ones. It includes functions that generate artificial data used
-for the study as well as functions collecting estimator performance measures.
-The code in *sim_study.py* further includes the actual simulation study that uses
-the above functions to assess the performance of the single estimation methods.
+non-parametric ones. It includes functions that simulate artificial data used
+for the analysis as well as functions assessing the performance of the estimation
+methods when applied to the simulated data. The code in *sim_study.py* further
+contains the actual simulation study using the above functions.
 
 .. _data_generating_process:
 
@@ -22,13 +22,17 @@ A setup of the simulation environment is performed with the following function i
 .. automodule:: src.simulation_study.sim_study
     :members:
 
+.. raw:: latex
+
+    \clearpage
+
 The actual implementation of the data generating process is then contained in
 *data_generating_process.py*.
 
 .. automodule:: src.simulation_study.data_generating_process
     :members:
 
-We add functional tests using ```pytest`` in *test_data_generating_process.py*.
+We add functional tests using `pytest`` in *test_data_generating_process.py*.
 
 To highlight the data generating process, we construct plots for a visualisation
 of the single model specifications in *produce_simulated_rdd_graphs.py*.

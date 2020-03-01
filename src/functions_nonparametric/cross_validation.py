@@ -15,7 +15,7 @@ def y_hat_local_linear(x, y, x0, bandwidth):
                     for regression.
         y (np.array): Array of type np.float64 containing dependent variable used
                     for regression.
-        x0 (float): Regressor value at which value of outcome variable is predicted.
+        x0 (float): Regressor value at which value of dependent variable is predicted.
         bandwidth (float): Range of data the kernel uses to assign weights.
 
     Returns:
@@ -33,7 +33,7 @@ def y_hat_local_linear(x, y, x0, bandwidth):
     index_pos_weight = np.where(data_points <= 1)
     weights[index_pos_weight] = 1 - data_points[index_pos_weight]
 
-    # Consider only datapoints with positive weight.
+    # Consider only datapoints with positive weight to reduce computation time.
     x = x[np.where(weights > 0)]
     y = y[np.where(weights > 0)]
     weights = weights[np.where(weights > 0)]
@@ -73,8 +73,8 @@ def cross_validation(data, cutoff, h_grid, min_num_obs):
         cutoff (float): Cutpoint in the range of the running variable used to
                         distinguish between treatment and control groups.
         h_grid (np.array): Grid of bandwidths taken into consideration.
-        min_num_obs (int): Minimum number of observations required for fitting
-                            the data at a particular point.
+        min_num_obs (int): Minimum number of observations used for fitting the
+                            data at a particular point.
 
     Returns:
         float: Mean squared error optimal bandwidth out of h_grid.

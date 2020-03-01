@@ -18,15 +18,17 @@ def fix_simulation_params(
     data_generating_process function.
 
     Args:
-        n (int): Number of observations.
-        M (int): Number of Monte Carlo repetitions.
+        n (int): Number of observations. Default is 500.
+        M (int): Number of Monte Carlo repetitions. Default is 250.
         model (str): General functional form of the model that potential outcomes
                 underlie. Possibilities are "linear", "poly" and "nonparametric".
-        discrete (bool): Indication if data is discretized or not.
+                Default is "linear".
+        discrete (bool): Indication if data is discretized or not. Default is "False".
         cutoff (float): Cutpoint in the range of the running variable used to
-                    distinguish between treatment and control groups.
-        tau (float): True value of the treatment effect.
+                    distinguish between treatment and control groups. Default is 0.
+        tau (float): True value of the treatment effect. Default is 0.75.
         noise_var (float): Variance of error term determining noise in the model.
+                            Default is 1.
 
     Returns:
         dict: Dictionary holding simulation parameters.
