@@ -33,6 +33,8 @@ for outcome in ["ned", "wg_c"]:
 
     if outcome == "wg_c":
         data_analysis.dropna(inplace=True)
+    else:
+        pass
 
     # Parametric treatment effect estimation.
     for degree in range(5):
@@ -72,7 +74,7 @@ for outcome in ["ned", "wg_c"]:
     df_result = df_result.transpose()
 
     # Collect results for regression table and round the numbers.
-    df_table_result = df_result[["coef", "se"]]
+    df_table_result = df_result[["coef", "se", "p_value"]]
     df_table_result = df_table_result.iloc[:7, :]
     df_table_result = df_table_result.round(4)
 
@@ -109,6 +111,8 @@ df_table_results = df_table_results.rename(
         "coef_y": "Wage Change",
         "se_x": "Std. Err.",
         "se_y": "Std. Err.",
+        "p_value_x": "p-value",
+        "p_value_y": "p-value",
     }
 )
 

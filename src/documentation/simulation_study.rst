@@ -32,7 +32,7 @@ The actual implementation of the data generating process is then contained in
 .. automodule:: src.simulation_study.data_generating_process
     :members:
 
-We add functional tests using `pytest`` in *test_data_generating_process.py*.
+We add functional tests using ``pytest`` in *test_data_generating_process.py*.
 
 To highlight the data generating process, we construct plots for a visualisation
 of the single model specifications in *produce_simulated_rdd_graphs.py*.

@@ -26,7 +26,7 @@ def estimate_treatment_effect_parametric(data, cutoff, degree=1, alpha=0.05):
     if {"y", "d", "r"}.issubset(data.columns) is False:
         raise IndexError("'y', 'd' or 'r' not in index.")
     if (isinstance(degree, int) and degree >= 0) is False:
-        raise ValueError("polynomial order must be weakly positive integer.")
+        raise ValueError("Polynomial order must be weakly positive integer.")
     else:
         pass
 
@@ -47,5 +47,6 @@ def estimate_treatment_effect_parametric(data, cutoff, degree=1, alpha=0.05):
     reg_out["se"] = results.bse[0]
     reg_out["conf_int_lower"] = results.conf_int(alpha=alpha)[0, 0]
     reg_out["conf_int_upper"] = results.conf_int(alpha=alpha)[0, 1]
+    reg_out["p_value"] = results.pvalues[0]
 
     return reg_out

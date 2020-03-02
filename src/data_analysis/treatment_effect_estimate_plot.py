@@ -13,13 +13,14 @@ for subplot in plot_dict.keys():
     data = pd.read_stata(
         ppj("OUT_TABLES", "data_analysis", f"plot_results_{plot_dict[subplot]}.dta")
     )
+    data_graph = data.copy()
 
     # Collect values used for plotting.
-    bw_data = data[data["bandwidth"] != 0]
-    coef_degree1 = data.at[data["degree"].eq(1).idxmax(), "coef"]
-    coef_degree2 = data.at[data["degree"].eq(2).idxmax(), "coef"]
-    h_rot = data.at[data["rot"].eq(1).idxmax(), "bandwidth"]
-    h_cv = data.at[data["cv"].eq(1).idxmax(), "bandwidth"]
+    bw_data = data_graph[data_graph["bandwidth"] != 0]
+    coef_degree1 = data_graph.at[data_graph["degree"].eq(1).idxmax(), "coef"]
+    coef_degree2 = data_graph.at[data_graph["degree"].eq(2).idxmax(), "coef"]
+    h_rot = data_graph.at[data_graph["rot"].eq(1).idxmax(), "bandwidth"]
+    h_cv = data_graph.at[data_graph["cv"].eq(1).idxmax(), "bandwidth"]
 
     # Plot corresponding treatment effect estimate as a function of the bandwidth.
     plt.subplot(subplot)
@@ -44,7 +45,7 @@ for subplot in plot_dict.keys():
         "coef",
         data=bw_data,
         color="darkblue",
-        alpha=0.15,
+        alpha=0.1,
     )
     plt.fill_between(
         "bandwidth",
@@ -52,7 +53,7 @@ for subplot in plot_dict.keys():
         "conf_int_upper",
         data=bw_data,
         color="darkblue",
-        alpha=0.15,
+        alpha=0.1,
     )
     line1 = plt.axhline(y=coef_degree1, linestyle="dashed", color="orangered")
     line2 = plt.axhline(y=coef_degree2, linestyle="dashdot", color="orangered")
@@ -64,6 +65,7 @@ for subplot in plot_dict.keys():
     )
     plt.xlabel("Bandwidth", size=14)
 
+    # Adjust y-axis and title depending on outcome variable.
     if plot_dict[subplot] == "ned":
         plt.title("Panel A", size=16, loc="left")
         plt.ylabel("Non-employment duration", size=14)

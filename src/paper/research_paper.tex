@@ -22,6 +22,7 @@
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
 \usepackage{float}
+\usepackage{ragged2e}
 
 \usepackage{natbib}
 \bibliographystyle{rusnat}
@@ -106,14 +107,14 @@ Moreover, we assume continuity of the conditional regression functions $\mathbb{
 \section{Simulation Study} % (fold)
 \label{sec:sim_study}
 
-\begin{figure}
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=\textwidth]{../../out/figures/simulation_study/simulated_rdd_graphs.png}
 	\caption{\textsc{Visualisation of Data-Generating Process}}
 	\label{fig: dgp}
 \end{figure}
 
-\begin{table}
+\begin{table}[H]
 	\begin{subtable}{\textwidth}
 		\centering
 		\input{../../out/tables/simulation_study/perf_meas_table_linear_p_d_False.tex}
@@ -138,7 +139,7 @@ Moreover, we assume continuity of the conditional regression functions $\mathbb{
 \end{table}
 
 
-\begin{table}
+\begin{table}[H]
 	\begin{subtable}{\textwidth}
 		\centering
 		\input{../../out/tables/simulation_study/perf_meas_table_linear_np_d_False.tex}
@@ -163,7 +164,7 @@ Moreover, we assume continuity of the conditional regression functions $\mathbb{
 \end{table}
 
 
-\begin{table}
+\begin{table}[H]
 	\begin{subtable}{\textwidth}
 		\centering
 		\input{../../out/tables/simulation_study/bw_select_table_linear_np_d_False.tex}
@@ -188,31 +189,7 @@ Moreover, we assume continuity of the conditional regression functions $\mathbb{
 \end{table}
 
 
-\section{Data Application} % (fold)
-\label{sec: data_application}
-
-\begin{figure}
-	\centering
-	\includegraphics[width=\textwidth]{../../out/figures/data_analysis/rdd_graphs.png}
-	\caption{\textsc{Effect of Unemployment Benefits on Non-Employment Duration and Wage Change}}
-	\label{fig: estim_ui_benefits}
-\end{figure}
-
-\begin{table}
-	\centering
-	\input{../../out/tables/data_analysis/reproduce_main_results_table_2.tex}
-	\caption{\textsc{Estimated Effect of Unemployment Benefit Extension}}
-	\label{tab: estim_ui_benefits}
-\end{table}
-
-
-\begin{figure}
-	\centering
-	\includegraphics[width=\textwidth]{../../out/figures/data_analysis/treatment_effect_estimates.png}
-	\caption{\textsc{Performance of Local Linear Regression with Different Bandwidths.}}
-	\label{fig: bw_perf}
-\end{figure}
-
+\input{data_application}
 
 % Add references.
 \clearpage

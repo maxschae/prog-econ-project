@@ -9,7 +9,7 @@ and non-parametric treatment effect estimation methods to a large administrative
 data set used in *Does Extending Unemployment Benefits Improve Job Quality?* by
 Nekoei and Weber (2017). The goal is to estimate the effect of extended unemployment
 benefits on non-employment duration and wage changes between the old and the new
-job, respectively, by means of Regression Discontinuity Design.
+job, respectively, by means of age-based Regression Discontinuity Design.
 
 In *reproduce_main_results.py*, we apply the implemented functions in
 **src.functions_parametric** and **src.functions_nonparametric** to assess the
