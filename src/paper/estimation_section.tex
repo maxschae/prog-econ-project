@@ -4,63 +4,135 @@
 \label{sec: estim}
 
 To estimate the causal effect we want to fit a regression function to the data at hand by means of OLS and WLS. Here, we disregard any covariates and regressor values stem from the treatment indicator $D$, running variable $R$ and polynomials thereof. Essentially, we are interested in the difference of the regression function's values when approaching the cutoff from above vis-à-vis below and we allow the regression function to behave differently on the left and right side of the cutoff. Throughout our work, we estimate models of the following kind:
-
 \begin{equation}
-
-Y = \alpha + \tau D + f^{l}(R) + f^{r}(R) + \epsilon .
+Y = \alpha + \tau D + f_{l}(R) + f_{r}(R) + \varepsilon .
 \label{eq: model_general}
-
 \end{equation}
 
-Under the identification assumptions laid out above $\tau$ recovers the causal effect. Further, $\alpha$ is the intercept and $\epsilon$ constitutes the mean-zero idiosyncratic element. The functions $f^{l}$ and $f^{r}$ are our main objects of interest and we want to investigate how they affect the treatment effect estimator $\tau$.
+Under the identification assumptions \ref{eq: ident_ass}, $\tau$ recovers the causal effect. Further, $\alpha$ is the intercept and $\varepsilon$ constitutes the mean-zero idiosyncratic element. The functions $f^{l}$ and $f^{r}$ are our main objects of interest and we want to investigate how they affect the treatment effect estimator $\tau$.
 
-Identifying causal effects in RDD applications relies by construction on a \textit{locational} feature in the data; treatment assignment discontinuously changes at a specific value of the running variable. This motivates our desire to fit the functional form of the true regression function, especially around the cutoff. In such a setting misspecification of functional forms emerges to be more severe as it may introduce biased estimates of the treatment effect \cite{lee_lemieux_2010}. For intuition suppose the true functional form is nonlinear and we estimate it by means of a linear model. We can still recover a linear prediction which minimizes some criterion, say the sum of squared residuals. While the \textit{best} linear prediction relates to the entire data, at particular points in the regressor's domain we may still be left with serious specification errors. In a RDD study the cutoff may constitute such a specific point, and the estimate would be biased. To reduce specification errors, polynomials of the running variable may be included which can capture (specific) nonlinearities. However, it is not granted that bias due to a misspecified functional form vanishes. Again, note that in RDD the treatment effect inherits a sense of location as it is closely tied to the cutoff determining treatment assignment. Our aim is to get the functional form close to the cutoff right and it is not always clear that data far away from the cutoff can help us to achieve that. In fact, we need to be well informed about the underlying data-generating process to make a case for parametrically estimating the treatment effect using all data available.
+Identifying causal effects in RDD applications relies by construction on a \textit{locational} feature in the data; treatment assignment discontinuously changes at a specific value of the running variable. This motivates our desire to fit the functional form of the true regression function, especially around the cutoff. In such a setting misspecification of functional forms emerges to be more severe as it may introduce biased estimates of the treatment effect \cite{lee_lemieux}. For intuition suppose the true functional form is nonlinear and we estimate it by means of a linear model. We can still recover a linear prediction which minimizes some criterion, say the sum of squared residuals. While the \textit{best} linear prediction relates to the entire data, at particular points in the regressor's domain we may still be left with serious specification errors. In a RDD study the cutoff may constitute such a specific point, and the estimate would be biased. To reduce specification errors, polynomials of the running variable may be included which can capture (specific) nonlinearities. However, it is not granted that bias due to a misspecified functional form vanishes. Again, note that in RDD the treatment effect inherits a sense of location as it is closely tied to the cutoff determining treatment assignment. Our aim is to get the functional form close to the cutoff right and it is not always clear that data far away from the cutoff can help us to achieve that. In fact, we need to be well informed about the underlying data-generating process to make a case for parametrically estimating the treatment effect using all data available. Hence, the estimation problem in RDD is widely considered to be addressed by nonparametric methods which relax functional form assumptions and pay closer attention to the treatment effect's locational feature by allowing to restrict data to the cutoff's vicinity, \cite{hahn_et_al}) and \cite{lee_lemieux}.
 
-Hence, the estimation problem in RDD is widely considered to be addressed by nonparametric methods which relax functional form assumptions and pay closer attention to the treatment effect's locational feature by allowing to restrict data to the cutoff's vicinity, \cite{hahn_et_al}) and \cite{lee_lemieux_2010}. The choice of bandwidth restricts the data to be included in the estimation and is thus crucial as it controls model complexity, that is, a larger bandwidth imposes more structure on the data resulting in higher precision but perhaps bias. Again, this brings up the trade-off between bias and precision which nicely reflects our thinking about global and local models. Moreover, as it is common to believe that data closer to the point of interest depict relationships between the regressor and the response variable which are more accurately describing the relationship at the point of interest compared to points far away, a kernel function is used to assign more weight to observations closer to the point of interest.
+In the following, we formally introduce the parametric and non-parametric models for treatment effect estimation in Regression Discontinuity Design that we are going to compare against each other in our study.
 
 
 \subsection{Parametric Treatment Effect Estimation} % (fold)
 \label{sec: param}
-In this project we estimate the treatment effect by means of OLS and allow different functional forms on either side of the RDD cutoff. We implement this by interacting the running variable (and polynomials thereof) with the treatment indicator. As common in RDD applications we center the running variable by subtracting the cutoff \cite{lee_lemieux_2010}. The linear model with polynomial degree one thus writes:
-
+In this project we estimate the treatment effect by means of OLS and allow different functional forms on either side of the RDD cutoff. We implement this by interacting the running variable (and polynomials thereof) with the treatment indicator. As common in RDD applications we center the running variable by subtracting the cutoff \cite{lee_lemieux}. The linear model with polynomial degree one thus writes:
 \begin{equation}
-Y = \alpha + \tau D + \beta_{l} (R-c) + (\beta_{r} - \beta_{l}) (R-c) D + \epsilon .
-\label{eq: model_general}
+Y = \alpha + \tau D + \beta_{l} (R-c) + (\beta_{r} - \beta_{l}) (R-c) D + \varepsilon .
+\label{eq: model_param}
 \end{equation}
 
 Similarly, the quadratic model is given by
-
 \begin{equation}
-Y = \alpha + \tau D + \beta_{l} (R-c) + (\beta_{r} - \beta_{l}) (R-c) D + \gamma_{l} (R-c)^2 + (\gamma_{r} - \gamma_{l}) (R-c)^2 D + \epsilon .
+Y = \alpha + \tau D + \beta_{l} (R-c) + (\beta_{r} - \beta_{l}) (R-c) D + \gamma_{l} (R-c)^2 + (\gamma_{r} - \gamma_{l}) (R-c)^2 D + \varepsilon .
 \end{equation}
 
 In our simulation study and real data application we estimate models with zero up to four polynomial degrees. (Note that a model of zero degree simply returns the difference in means of all individuals below and above the cutoff).
 
 
 
-\subsection{Non-parametric Treatment Effect Estimation} % (fold)
+\subsection{Non-Parametric Treatment Effect Estimation} % (fold)
 \label{sec: non-param}
-For estimation by means of local linear regression we can (luckily) rely on general results established by the weighted least squares literature. Here, the weighing scheme is specified by the triangle kernel $K(r) = \max \lbrace 0, 1 - \vert r \vert \rbrace$, a non-negative function with bounded support that assigns a higher weight to observations with regressor values close to the point of interest. \cite{cheng_et_al_1997} show that the triangle kernel is boundary optimal in the sense of minimizing the asymptotic mean squared error at boundary points. As we are interested in estimation at a boundary point -- the RDD cutoff --, we employ the triangle kernel throughout our work. As stated, local linear regressions require a smoothing parameter, the bandwidth, which restricts the data used and we build on two data-driven bandwidth selection procedures. First, the rule-of-thumb bandwidth selection uses the expression for the asymptotically optimal bandwidth and plugs in estimates of unknown quantities \cite{fan_gij_1996}. Second, a bandwidth procedure based on cross-validation which aims to minimize the mean squared error of in-sample predictions. The algorithms required to obtain these bandwidths is discussed in detail below, for implementation details the reader is directed to the project documentation and the available code. Let $h$ be the bandwidth and $\mathds{1}$ depicts the indicator function. We estimate the following pooled regression by means of weighted least squares:
+To estimate the treatment effect non-parametrically, we rely on local linear regression which fits a linear model to a localised subset of the data and weighs the observations depending on their proximity to the point of interest. The weights are determined by a kernel function $K$ which assigns more weight to observations close to the point of interest. The size of the local neighbourhood used for estimation at a particular point is determined by a non-negative smoothing parameter, the bandwidth $h$.
 
+As stated by \cite{lee_lemieux}, the kernel function has little impact on the treatment effect estimate in practice. But as we are interested in estimating the regression functions at a boundary point -- the cutoff --, we use the boundary optimal triangular kernel $K(r) = \max \lbrace 0, 1 - \vert r \vert \rbrace$ (cf. \cite{cheng_et_al}).
 
-\textit{TODO: how to best present the model in accordance with our implementation...
-\begin{equation}
-Y = \alpha + \tau D + \beta_{l} (R-c) + (\beta_{r} - \beta_{l}) (R-c) D + \epsilon .
+The choice of bandwidth is however more complicated. It restricts the data to be included in the estimation, thus controls the model complexity and involves a trade-off between bias and variance. If the bandwidth is too small, only few observations fall into the local neighbourhood, leading to small bias but large variance and an overfitted regression function highlighting spuriously fine data structures. If the bandwidth is too large, the large amount of observations falling into the local neighbourhood leads to small variance but potentially large bias and the regression function might miss important features of the data. Thus, the bandwidth is a crucial ingredient of local linear regression and in the literature on Regression Discontinuity Designs, the following data-driven selection procedures are commonly used: Leave-one-out cross-validation and the rule-of-thumb bandwidth selection procedure by \cite{fan_gij}.
 
-\left( \mathds{1}_{X_{j}>c} \mathds{1}_{r \geq c} + \mathds{1}_{X_{j}<c} \mathds{1}_{r < c} \right) .
+Cross-validation is a procedure to select the optimal tuning parameter of a regression model by partitioning the sample into two subsets, using one to fit the data (the \textit{training set}) and the other one (the \textit{test set}) to test the accuracy of the prediction in terms of mean squared error. Leave-one-out cross-validation is a special case thereof where the test set is of size one, called the \textit{hold-out observation}. To be applicable to Regression Discontinuity Designs, \cite{imb_lemieux} and \cite{ludwig_miller} developed a special version where the training set only consists of observations within the bandwidth of the hold-out-observation away from the cutoff. Like this the hold-out observation mimics a boundary point and the selected bandwidth is more appropriate for the boundary estimation setting. Algorithm \ref{alg:cv} gives a detailed description of the general cross-validation algorithm used in our study.
 
+\begin{algorithm}[H]
+	\caption{Cross-validation bandwidth selection}\label{alg:cv}
+	\begin{algorithmic}[1]
+		\Require $((R_{i}, Y_{i})_{i \in N}, c, grid) =$ (data on running and dependent variable, cutoff, grid of bandwidths)
+		\State $N_{grid} \gets$ number of observations in $grid$
+		\State Split the data $(R_{i}, Y_{i})_{i \in N}$ at $c$ into $(R_{i, -}, Y_{i, -})_{i \in N_{-}}$ and $(R_{i, +}, Y_{i, +})_{i \in N_{+}}$
+		\State MSE $\gets$ $\left[ 0, \dots, 0 \right]$
+		\For{$j = 1, \dots, N_{grid}$}
+		\State $h \gets grid[j]$
 
-\label{eq: model_general}
-\end{equation}
+		\For{$k = 1, \dots, N_{-}$}
+		\State $R_{out} \gets R_{k, -}$
+		\State $Y_{out} \gets Y_{k, -}$
+		\State $\left(R_{train}, Y_{train}\right) \gets$ all observations of $(R_{i, -}, Y_{i, -})_{i \in N_{-}}$ with $R_{out}-h \leq R_{i, -} < R_{out}$
+		\State $Y_{predict} \gets$ predicted value of regression function at $R_{out}$ performing a local linear \newline
+		\mbox{}\phantom{\textbf{forall} \itshape(} regression with the triangle kernel and bandwidth $h$ of $Y_{train}$ on $R_{train}$
+		\State MSE$[j] \gets$ MSE$[j] + \left( Y_{out} - Y_{predict} \right)^{2}$
+		\EndFor
 
+		\For{$k = 1, \dots, N_{+}$}
+		\State $R_{out} \gets R_{k, +}$
+		\State $Y_{out} \gets Y_{k, +}$
+		\State $\left(R_{train}, Y_{train}\right) \gets$ all observations of  $(R_{i, +}, Y_{i, +})_{i \in N_{+}}$ with $R_{out} < R_{i, +} \leq R_{out}+h $
+		\State $Y_{predict} \gets$ predicted value of regression function at $R_{out}$ performing a local linear \newline
+		\mbox{}\phantom{\textbf{forall} \itshape(} regression with the triangle kernel and bandwidth $h$ of $Y_{train}$ on $R_{train}$
+		\State MSE$[j] \gets$ MSE$[j] + \left( Y_{out} - Y_{predict} \right)^{2}$
+		\EndFor
+		\EndFor
+		\State $h_{opt} \gets$ value of $grid$ where MSE is minimal
+		\State \textbf{return} $h_{opt}$
+	\end{algorithmic}
+\end{algorithm}
 
+The rule-of-thumb bandwidth selection procedure developed by \cite{fan_gij} for the context of local linear regressions is also based on the concept of mean squared error. The idea is to start with a formula for the optimal bandwidth in terms of an optimal degree of bias and precision and then plug in estimates of unknown quantities. The adaptation to the setting of Regression Discontinuity Designs which we use has been performed by \cite{imbens_kalyanaraman} and is described in Algorithm \ref{alg:rot}.
+
+\begin{algorithm}
+	\caption{Rule-of-thumb bandwidth selection}\label{alg:rot}
+	\begin{algorithmic}[1]
+		\Require $((R_{i}, Y_{i})_{i \in N}, c) =$ (data on running and dependent variable, cutoff)
+		\Stepone Estimation of density and conditional variance.
+		\State $\sigma^{2}_{R} \gets \frac{1}{N-1} \sum_{i=1}^{N} (R_{i} - \bar{R})^{2}$
+		\State $h_{1} \gets 1.84 \cdot \sigma_{R} \cdot N^{-1/5}$
+		\State $N_{h_{1}, -} \gets \sum_{i=1}^{N} \mathds{1}_{c-h_{1} \leq R_{i} < c}$
+		\State $N_{h_{1}, +} \gets \sum_{i=1}^{N} \mathds{1}_{c \leq R_{i} \leq c+h_{1}}$
+		\State $\bar{Y}_{h_{1}, -} \gets \frac{1}{N_{h_{1}, -}} \left(\sum_{i: c-h_{1} \leq R_{i} < c} Y_{i} \right)$
+		\State $\bar{Y}_{h_{1}, +} \gets \frac{1}{N_{h_{1}, +}} \left(\sum_{i: c \leq R_{i} \leq c+h_{1}} Y_{i} \right)$
+		\State $\widehat{f}_{R}(c) \gets \frac{N_{h_{1}, -} + N_{h_{1}, +}}{2 \cdot N \cdot h_{1}}$ {\color{blue} \Comment{Estimate of the density of $R_{i}$ at $c$}}
+		\State $\widehat{\sigma}^{2}(c) \gets \frac{1}{N_{h_{1}, -} + N_{h_{1}, +}} \left( \sum_{c-h_{1} \leq R_{i} < c} \left( Y_{i} - \bar{Y}_{h_{1}, -}\right)^{2} + \sum_{i: c \leq R_{i} \leq c+h_{1}} \left( Y_{i} - \bar{Y}_{h_{1}, +} \right)^{2} \right)$
+		\newline {\color{blue} \Comment{Estimate of the conditional variance of $Y_{i}$ given $R_{i}=r$ at $r=c$}}
+
+		\Steptwo Estimation of second derivatives.
+		\State $N_{-} \gets$ number of observations with $R_{i} < c$
+		\State $N_{+} \gets$ number of observations with $R_{i} \geq c$
+		\State $median(R_{-}) \gets$ median of observations with $R_{i} < c$
+		\State $median(R_{+}) \gets$ median of observations with $R_{i} \geq c$
+		\State Temporarily discard observations with $R_{i} < median(R_{-})$ or $R_{i} > median(R_{+})$ and estimate the regression function \newline $Y_{i} = \alpha_{0} + \alpha_{1} \cdot \mathds{1}_{R_{i} \geq c} + \alpha_{2} \cdot (R_{i}-c) + \alpha_{3} \cdot (R_{i}-c)^{2} + \alpha_{4} \cdot (R_{i}-c)^{3} + \varepsilon_{i}$
+		\State $\widehat{m}_{3}(c) \gets 6 \cdot \widehat{\alpha}_{4}$
+		\State $h_{2, -} \gets 3.56 \left( \frac{\widehat{\sigma}^{2}(c)}{\widehat{f}(c) \cdot \max\lbrace \left(\widehat{m}_{3}(c)\right)^{2}, 0.01\rbrace}\right)^{1/7} N_{-}^{-1/7}$
+		\State $h_{2, +} \gets 3.56 \left( \frac{\widehat{\sigma}^{2}(c)}{\widehat{f}(c) \cdot \max\lbrace \left(\widehat{m}_{3}(c)\right)^{2}, 0.01\rbrace}\right)^{1/7} N_{+}^{-1/7}$
+
+		\State $(R_{i, h_{2, -}}, Y_{i, h_{2, -}}) \gets$ observations with $c-h_{2, -} \leq R_{i} < c$
+		\State $(R_{i, h_{2, +}}, Y_{i, h_{2, +}}) \gets$ observations with $c \leq R_{i} \leq c+h_{2, +}$
+		\State $N_{h_{2}, -} \gets$ number of observations with $c-h_{2, -} \leq R_{i} < c$
+		\State $N_{h_{2}, +} \gets$ number of observations with $c \leq R_{i} \leq c+h_{2, +}$
+		\State Estimate the regression function  $Y_{i, h_{2,-}} = \beta_{0} + \beta_{1} (R_{i, h_{2, -}}-c) + \beta_{2} (R_{i, h_{2, -}}-c)^{2} + \epsilon_{i}$
+		\State $\widehat{m}^{(2)}_{-}(c) \gets 2 \cdot \widehat{\beta}_{2}$ {\color{blue} \Comment{Estimate of the curvature of the regression function left of $c$}}
+		\State Estimate the regression function  $Y_{i, h_{2,+}} = \gamma_{0} + \gamma_{1} (R_{i, h_{2, +}}-c) + \gamma_{2} (R_{i, h_{2, +}}-c)^{2} + \epsilon_{i}$
+		\State $\widehat{m}^{(2)}_{+}(c) \gets 2 \cdot \widehat{\gamma}_{2}$ {\color{blue} \Comment{Estimate of the curvature of the regression function right of $c$}}
+
+		\Stepthree Calculation of regularisation terms and optimal bandwidth.
+		\State $\widehat{r}_{-} \gets$ $\frac{720 \cdot \widehat{\sigma}^{2}(c)}{N_{h_{2}, -} \cdot h_{2, -}^{4}}$
+		\State $\widehat{r}_{+} \gets$ $\frac{720 \cdot \widehat{\sigma}^{2}(c)}{N_{h_{2}, +} \cdot h_{2, +}^{4}}$
+		\State $h_{opt} \gets 3.4375 \cdot \left(\frac{2 \cdot \widehat{\sigma}^{2}}{\widehat{f}(c) \cdot \left( \left( \widehat{m}^{(2)}_{+}(c) - \widehat{m}^{(2)}_{-}(c) \right)^{2} + \left( \widehat{r}_{+} + \widehat{r}_{-} \right) \right)}\right) \cdot N^{-1/5}$
+		\State \textbf{return} $h_{opt}$
+	\end{algorithmic}
+\end{algorithm}
+
+Using these procedures to select the bandwidth $h$, we follow the approach by \cite{fan_gij} and transform the local linear regression model into a standard weighted least squares problem where weights are determined by the kernel. According to \cite{lee_lemieux} we can then use the following pooled regression model and a weighted least squares regression to estimate the treatment effect consistently.
+\begin{align}
+Y = \alpha + &\tau D + \beta_{l} (R-c) + (\beta_{r} - \beta_{l}) (R-c) D + \varepsilon \\
+&\text{ where } c - h \leq R \leq c + h \nonumber
+\label{eq: model_non_param}
+\end{align}
 
 
 \subsection{Parametric or non-parametric?} % (fold)
 \label{sec: para discussion}
 Parametric and non-parametric treatment effect estimation, as presented here, are fundamentally different since non-parametric methods relax functional form assumptions, constrain the dataset and face different statistical properties. However, in a sense, the non-parametric model can be understood as a generalization of the parametric model since for given data and when choosing the uniform kernel and the bandwidth to coincide with the regressor's support the non-parametric and parametric model are in fact the same. Hence, parametric and non-parametric approaches are sometimes called \textit{global} and \textit{local} methods, respectively. That being said, we want to briefly discuss the trade-offs between these two methods and highlight those in our simulation study and real data application.
 
-The principle trade-off emerges along bias and precision. As stated above, misspecifing the functional form can introduce bias in the treatment estimate in RDD, and we expect flexible non-parametric methods to be better suited to avoid bias. This potential advantage if surely more leveraged in data structures that exhibit stark non-linearities which are hard to capture with polynomial specifications. If we on the other hand are well informed about the true process that generated the data, a treatment effect estimated by a parametric model may not suffer from specification error. In that case, it may even be advisable to use a parametric model as it potentially yields more precise estimates, simply because all data available are used. Also, in settings with very few observations global methods may outperform non-parametric methods as the latter rely on more observations due to their slower convergence rates.
+The principle trade-off emerges along bias and precision. As stated above, misspecifying the functional form can introduce bias in the treatment estimate in RDD, and we expect flexible non-parametric methods to be better suited to avoid bias. This potential advantage if surely more leveraged in data structures that exhibit stark non-linearities which are hard to capture with polynomial specifications. If we on the other hand are well informed about the true process that generated the data, a treatment effect estimated by a parametric model may not suffer from specification error. In that case, it may even be advisable to use a parametric model as it potentially yields more precise estimates, simply because all data available are used. Also, in settings with very few observations global methods may outperform non-parametric methods as the latter rely on more observations due to their slower convergence rates.
 
 
 

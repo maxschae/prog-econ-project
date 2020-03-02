@@ -21,9 +21,7 @@
 % \usepackage{endfloat} % Enable to move tables / figures to the end. Useful for some submissions.
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
-\algnewcommand\Stepone{\item[\textbf{Step 1:}]}
-\algnewcommand\Steptwo{\item[\textbf{Step 2:}]}
-\algnewcommand\Stepthree{\item[\textbf{Step 3:}]}
+\usepackage{float}
 
 \usepackage{natbib}
 \bibliographystyle{rusnat}
@@ -56,18 +54,18 @@
 \numberwithin{figure}{section}
 \numberwithin{table}{section}
 
+% Customise algorithms.
+\algnewcommand\Stepone{\item[\textbf{Step 1:}]}
+\algnewcommand\Steptwo{\item[\textbf{Step 2:}]}
+\algnewcommand\Stepthree{\item[\textbf{Step 3:}]}
 
 \begin{document}
 
-\title{A Comparative Study of Different Estimation Methods in Regression Discontinuity Design\thanks{Caroline Krayer, Max Schäfer, University of Bonn. \newline Email: \href{mailto:schaefer.max@gmx.net, caroline.krayer@t-online.de}{\nolinkurl{schaefer [dot] max [at] gmx [dot] net, caroline [dot] krayer [at] t-online [dot] de}}.}}
+\title{A Comparative Study of Different Estimation Methods in Regression Discontinuity Design\thanks{Caroline Krayer, Max Schäfer, University of Bonn.,  Email: \href{mailto:schaefer.max@gmx.net, caroline.krayer@t-online.de}{\nolinkurl{schaefer [dot] max [at] gmx [dot] net, caroline [dot] krayer [at] t-online [dot] de}}.}}
 
 \author{Caroline Krayer, Max Schäfer}
 
-\date{
-{\bf Preliminary -- please do not quote}
-\\[1ex]
-\today
-}
+\date{\today}
 
 \maketitle
 
@@ -75,6 +73,8 @@
 \begin{abstract}
 	Some abstract here?
 \end{abstract}
+\thispagestyle{empty}
+\addtocounter{page}{-1}
 \clearpage
 
 \section{Motivation} % (fold)
@@ -88,99 +88,20 @@ and Angrist and Lavy's study of the effect of class sizes on student performance
 To identify the treatment effect in Regression Discontinuity Designs, non-parametric estimation methods are commonly used as they do not rely on functional form assumptions and thus reduce the risk of bias. But non-parametric methods typically suffer from slower convergence rates and include the necessity of choosing a smoothing parameter -- the bandwidth. In our study, we are interested in the performance difference of non-parametric towards parametric estimation methods. More specifically, we compare local linear regression with two different bandwidth selection procedures and standard global polynomial fitting of varying degrees in different estimation settings by means of a simulation study and real data application.
 
 
-\section{Theoretical Framework} % (fold)
+\section{Theoretical Framework of Regression Discontinuity Design} % (fold)
 \label{sec:framework}
 
 Assume that we want to uncover the effect of a binary treatment $ D_{i} \in \lbrace 0,1 \rbrace $ on an outcome of interest $Y_{i}$, where $Y_{i}$(1) and $Y_{i}$(0) denote the potential outcomes if individual $i$ receives treatment or not, respectively, as defined by \cite{rubin}. Let $R_{i}$ be a pre-treatment variable -- the running variable -- which determines the assignment to treatment of each individual. we restrict our attention to the sharp Regression Discontinuity Design where participation in the treatment is mandatory and treatment is granted to those whose value of the running variable passes a fixed cutoff $c$: $D_{i} = \mathds{1}_{R_{i} \geq c}$
 
-Moreover, we assume continuity of the conditional regression functions $\mathbb{E}\left[Y_{i}(0) \vert R_{i} = r\right]$ and  $\mathbb{E}\left[Y_{i}(1) \vert R_{i} = r\right]$ and continuity of the running variable's density $f_{R_{i}}(r)$ at $r=c$. Following \cite{hahn_et_al} we can then identify the average treatment effect as the size of the discontinuity in the conditional expectation of the outcome given the running variable:
-\begin{equation*}
+Moreover, we assume continuity of the conditional regression functions $\mathbb{E}\left[Y_{i}(0) \vert R_{i} = r\right]$ and  $\mathbb{E}\left[Y_{i}(1) \vert R_{i} = r\right]$ and continuity of the running variable's density $f_{R_{i}}(r)$ at $r=c$. Following \cite{hahn_et_al} we can then identify the average treatment effect as the size of the discontinuity in the conditional expectation of the outcome given the running variable at the cutoff:
+\begin{equation}
 \tau = \lim_{r \downarrow c} \mathbb{E}\left[Y \vert R = r\right] - \lim_{r \uparrow c} \mathbb{E}\left[ Y \vert R = r\right].
-\end{equation*}
+\label{eq: ident_ass}
+\end{equation}
 
 
-\section{Parametric Treatment Effect Estimation} % (fold)
-\label{sec: param}
+\input{estimation_section}
 
-
-
-\section{Non-parametric Treatment Effect Estimation} % (fold)
-\label{sec: non-param}
-
-\begin{algorithm}
-	\caption{Cross-validation bandwidth selection}\label{alg:cv}
-	\begin{algorithmic}[1]
-		\Require $((R_{i}, Y_{i})_{i \in N}, c, grid) =$ (data on running and dependent variable, cutoff, grid of bandwidths)
-		\State $N_{grid} \gets$ number of observations in $grid$
-		\State Split the data $(R_{i}, Y_{i})_{i \in N}$ at $c$ into $(R_{i, -}, Y_{i, -})_{i \in N_{-}}$ and $(R_{i, +}, Y_{i, +})_{i \in N_{+}}$
-		\State MSE $\gets$ $\left[ 0, \dots, 0 \right]$
-		\For{$j = 1, \dots, N_{grid}$}
-		\State $h \gets grid[j]$
-
-		\For{$k = 1, \dots, N_{-}$}
-		\State $R_{out} \gets R_{k, -}$
-		\State $Y_{out} \gets Y_{k, -}$
-		\State $\left(R_{train}, Y_{train}\right) \gets$ all observations of $(R_{i, -}, Y_{i, -})_{i \in N_{-}}$ with $R_{out}-h \leq R_{i, -} < R_{out}$
-		\State $Y_{predict} \gets$ predicted value of regression function at $R_{out}$ performing a local linear \newline
-		\mbox{}\phantom{\textbf{forall} \itshape(} regression with the triangle kernel and bandwidth $h$ of $Y_{train}$ on $R_{train}$
-		\State MSE$[j] \gets$ MSE$[j] + \left( Y_{out} - Y_{predict} \right)^{2}$
-		\EndFor
-
-		\For{$k = 1, \dots, N_{+}$}
-		\State $R_{out} \gets R_{k, +}$
-		\State $Y_{out} \gets Y_{k, +}$
-		\State $\left(R_{train}, Y_{train}\right) \gets$ all observations of  $(R_{i, +}, Y_{i, +})_{i \in N_{+}}$ with $R_{out} < R_{i, +} \leq R_{out}+h $
-		\State $Y_{predict} \gets$ predicted value of regression function at $R_{out}$ performing a local linear \newline
-		\mbox{}\phantom{\textbf{forall} \itshape(} regression with the triangle kernel and bandwidth $h$ of $Y_{train}$ on $R_{train}$
-		\State MSE$[j] \gets$ MSE$[j] + \left( Y_{out} - Y_{predict} \right)^{2}$
-		\EndFor
-		\EndFor
-		\State $h_{opt} \gets$ value of $grid$ where MSE is minimal
-		\State \textbf{return} $h_{opt}$
-	\end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}
-	\caption{Rule-of-thumb bandwidth selection}\label{alg:rot}
-	\begin{algorithmic}[1]
-		\Require $((R_{i}, Y_{i})_{i \in N}, c) =$ (data on running and dependent variable, cutoff)
-		\Stepone Estimation of density and conditional variance.
-		\State $\sigma^{2}_{R} \gets \frac{1}{N-1} \sum_{i=1}^{N} (R_{i} - \bar{R})^{2}$
-		\State $h_{1} \gets 1.84 \cdot \sigma_{R} \cdot N^{-1/5}$
-		\State $N_{h_{1}, -} \gets \sum_{i=1}^{N} \mathds{1}_{c-h_{1} \leq R_{i} < c}$
-		\State $N_{h_{1}, +} \gets \sum_{i=1}^{N} \mathds{1}_{c \leq R_{i} \leq c+h_{1}}$
-		\State $\bar{Y}_{h_{1}, -} \gets \frac{1}{N_{h_{1}, -}} \left(\sum_{i: c-h_{1} \leq R_{i} < c} Y_{i} \right)$
-		\State $\bar{Y}_{h_{1}, +} \gets \frac{1}{N_{h_{1}, +}} \left(\sum_{i: c \leq R_{i} \leq c+h_{1}} Y_{i} \right)$
-		\State $\widehat{f}_{R}(c) \gets \frac{N_{h_{1}, -} + N_{h_{1}, +}}{2 \cdot N \cdot h_{1}}$ {\color{blue} \Comment{Estimate of the density of $R_{i}$ at $c$}}
-		\State $\widehat{\sigma}^{2}(c) \gets \frac{1}{N_{h_{1}, -} + N_{h_{1}, +}} \left( \sum_{c-h_{1} \leq R_{i} < c} \left( Y_{i} - \bar{Y}_{h_{1}, -}\right)^{2} + \sum_{i: c \leq R_{i} \leq c+h_{1}} \left( Y_{i} - \bar{Y}_{h_{1}, +} \right)^{2} \right)$
-		\newline {\color{blue} \Comment{Estimate of the conditional variance of $Y_{i}$ given $R_{i}=r$ at $r=c$}}
-
-		\Steptwo Estimation of second derivatives.
-		\State $N_{-} \gets$ number of observations with $R_{i} < c$
-		\State $N_{+} \gets$ number of observations with $R_{i} \geq c$
-		\State $median(R_{-}) \gets$ median of observations with $R_{i} < c$
-		\State $median(R_{+}) \gets$ median of observations with $R_{i} \geq c$
-		\State Temporarily discard observations with $R_{i} < median(R_{-})$ or $R_{i} > median(R_{+})$ and estimate the regression function \newline $Y_{i} = \alpha_{0} + \alpha_{1} \cdot \mathds{1}_{R_{i} \geq c} + \alpha_{2} \cdot (R_{i}-c) + \alpha_{3} \cdot (R_{i}-c)^{2} + \alpha_{4} \cdot (R_{i}-c)^{3} + \varepsilon_{i}$
-		\State $\widehat{m}_{3}(c) \gets 6 \cdot \widehat{\alpha}_{4}$
-		\State $h_{2, -} \gets 3.56 \left( \frac{\widehat{\sigma}^{2}(c)}{\widehat{f}(c) \cdot \max\lbrace \left(\widehat{m}_{3}(c)\right)^{2}, 0.01\rbrace}\right)^{1/7} N_{-}^{-1/7}$
-		\State $h_{2, +} \gets 3.56 \left( \frac{\widehat{\sigma}^{2}(c)}{\widehat{f}(c) \cdot \max\lbrace \left(\widehat{m}_{3}(c)\right)^{2}, 0.01\rbrace}\right)^{1/7} N_{+}^{-1/7}$
-
-		\State $(R_{i, h_{2, -}}, Y_{i, h_{2, -}}) \gets$ observations with $c-h_{2, -} \leq R_{i} < c$
-		\State $(R_{i, h_{2, +}}, Y_{i, h_{2, +}}) \gets$ observations with $c \leq R_{i} \leq c+h_{2, +}$
-		\State $N_{h_{2}, -} \gets$ number of observations with $c-h_{2, -} \leq R_{i} < c$
-		\State $N_{h_{2}, +} \gets$ number of observations with $c \leq R_{i} \leq c+h_{2, +}$
-		\State Estimate the regression function  $Y_{i, h_{2,-}} = \beta_{0} + \beta_{1} (R_{i, h_{2, -}}-c) + \beta_{2} (R_{i, h_{2, -}}-c)^{2} + \epsilon_{i}$
-		\State $\widehat{m}^{(2)}_{-}(c) \gets 2 \cdot \widehat{\beta}_{2}$ {\color{blue} \Comment{Estimate of the curvature of the regression function left of $c$}}
-		\State Estimate the regression function  $Y_{i, h_{2,+}} = \gamma_{0} + \gamma_{1} (R_{i, h_{2, +}}-c) + \gamma_{2} (R_{i, h_{2, +}}-c)^{2} + \epsilon_{i}$
-		\State $\widehat{m}^{(2)}_{+}(c) \gets 2 \cdot \widehat{\gamma}_{2}$ {\color{blue} \Comment{Estimate of the curvature of the regression function right of $c$}}
-
-		\Stepthree Calculation of regularisation terms and optimal bandwidth.
-		\State $\widehat{r}_{-} \gets$ $\frac{720 \cdot \widehat{\sigma}^{2}(c)}{N_{h_{2}, -} \cdot h_{2, -}^{4}}$
-		\State $\widehat{r}_{+} \gets$ $\frac{720 \cdot \widehat{\sigma}^{2}(c)}{N_{h_{2}, +} \cdot h_{2, +}^{4}}$
-		\State $h_{opt} \gets 3.4375 \cdot \left(\frac{2 \cdot \widehat{\sigma}^{2}}{\widehat{f}(c) \cdot \left( \left( \widehat{m}^{(2)}_{+}(c) - \widehat{m}^{(2)}_{-}(c) \right)^{2} + \left( \widehat{r}_{+} + \widehat{r}_{-} \right) \right)}\right) \cdot N^{-1/5}$
-		\State \textbf{return} $h_{opt}$
-	\end{algorithmic}
-\end{algorithm}
 
 \section{Simulation Study} % (fold)
 \label{sec:sim_study}
@@ -292,6 +213,9 @@ Moreover, we assume continuity of the conditional regression functions $\mathbb{
 	\label{fig: bw_perf}
 \end{figure}
 
+
+% Add references.
+\clearpage
 \bibliography{refs}
 
 
