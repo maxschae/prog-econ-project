@@ -38,7 +38,7 @@ for outcome in ["ned", "wg_c"]:
 
     # Parametric treatment effect estimation.
     for degree in range(5):
-        results[str(degree)] = estimate_treatment_effect_parametric(
+        results[f"Degree {degree}"] = estimate_treatment_effect_parametric(
             data=data_analysis, cutoff=cutoff, degree=degree,
         )
 
