@@ -48,11 +48,11 @@ data_graph_d = data_graph_d[1:-1]
 # Plot data.
 sns.set_style("whitegrid")
 
-fig, ax = plt.subplots(figsize=(20, 20), sharex=True)
+fig, ax = plt.subplots(figsize=(24, 6), sharex=True)
 plt.subplots_adjust(wspace=0.3)
 
 # Specify subplot arrangement and outcome to be plotted against age.
-plot_dict = {"221": "ned", "222": "wg_c"}
+plot_dict = {"121": "ned", "122": "wg_c"}
 for subplot in plot_dict.keys():
     # Generate two subplots.
     plt.subplot(subplot)
