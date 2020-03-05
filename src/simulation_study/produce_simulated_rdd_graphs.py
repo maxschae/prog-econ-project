@@ -51,12 +51,12 @@ for model in ["linear", "poly", "nonparametric"]:
 # Plot binned data.
 sns.set_style("whitegrid")
 
-fig, ax = plt.subplots(figsize=(20, 20), sharex=True)
+fig, ax = plt.subplots(figsize=(24, 6), sharex=True)
 plt.subplots_adjust(wspace=0.3)
 
 # Specify subplot arrangement and outcome by
 # different data generating processes.
-plot_dict = {"331": "linear", "332": "poly", "333": "nonparametric"}
+plot_dict = {"131": "linear", "132": "poly", "133": "nonparametric"}
 
 for subplot in plot_dict.keys():
     plt.subplot(subplot)
@@ -83,13 +83,13 @@ for subplot in plot_dict.keys():
     plt.axvline(x=cutoff, color="black", alpha=0.8, linestyle="--")
 
     # Customize subplot's title and label for different outcomes.
-    if subplot == "331":
+    if subplot == "131":
         plt.title("Panel A", size=26, loc="left")
-    elif subplot == "332":
+    elif subplot == "132":
         plt.title("Panel B", size=26, loc="left")
-    elif subplot == "333":
+    elif subplot == "133":
         plt.title("Panel C", size=26, loc="left")
     else:
         pass
-
+plt.savefig("a.png")
 plt.savefig(ppj("OUT_FIGURES", "simulation_study", "simulated_rdd_graphs.png"))
