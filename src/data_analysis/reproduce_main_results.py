@@ -79,7 +79,8 @@ for outcome in ["ned", "wg_c"]:
     df_table_result = df_table_result.round(4)
 
     # Collect results used in the plots considering bandwidth performance.
-    df_plot_result = df_result[["coef", "conf_int_lower", "conf_int_upper"]]
+    df_plot_result = df_result.copy()
+    df_plot_result = df_plot_result[["coef", "conf_int_lower", "conf_int_upper"]]
     df_plot_result["bandwidth"] = np.nan
     df_plot_result.loc["Rule-of-Thumb", "bandwidth"] = h_rot
     df_plot_result.loc["Cross-Validation", "bandwidth"] = h_cv
