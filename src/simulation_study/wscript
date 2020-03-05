@@ -89,42 +89,6 @@ def build(ctx):
                 "simulation_study",
                 "perf_meas_table_nonparametric_np_d_False.tex",
             ),
-            #            ctx.path_to(
-            #                ctx,
-            #                "OUT_TABLES",
-            #                "simulation_study",
-            #                "perf_meas_table_linear_p_d_True.tex",
-            #            ),
-            #            ctx.path_to(
-            #                ctx,
-            #                "OUT_TABLES",
-            #                "simulation_study",
-            #                "perf_meas_table_linear_np_d_True.tex",
-            #            ),
-            #            ctx.path_to(
-            #                ctx,
-            #                "OUT_TABLES",
-            #                "simulation_study",
-            #                "perf_meas_table_poly_p_d_True.tex",
-            #            ),
-            #            ctx.path_to(
-            #                ctx,
-            #                "OUT_TABLES",
-            #                "simulation_study",
-            #                "perf_meas_table_poly_np_d_True.tex",
-            #            ),
-            #            ctx.path_to(
-            #                ctx,
-            #                "OUT_TABLES",
-            #                "simulation_study",
-            #                "perf_meas_table_nonparametric_p_d_True.tex",
-            #            ),
-            #            ctx.path_to(
-            #                ctx,
-            #                "OUT_TABLES",
-            #                "simulation_study",
-            #                "perf_meas_table_nonparametric_np_d_True.tex",
-            #            ),
             ctx.path_to(
                 ctx,
                 "OUT_TABLES",

@@ -37,8 +37,8 @@ The correctness of the function implementation is tested using ``pytest`` in
 
 For the implementation of leave-one-out cross-validation, we use the following
 functions that can be found in *cross_validation.py*. As the procedure is
-computationally expensive, we apply the Python package ``numba`` to the
-y_hat_local_linear function.
+computationally expensive, we apply the Python package ``numba`` to reach a speed
+up of the y_hat_local_linear function.
 
 .. automodule:: src.functions_nonparametric.cross_validation
     :members:
