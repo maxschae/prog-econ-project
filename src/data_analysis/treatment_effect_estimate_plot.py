@@ -5,7 +5,7 @@ from bld.project_paths import project_paths_join as ppj
 
 
 # Create plot for performance of different bandwidths.
-fig, ax = plt.subplots(figsize=(12, 7.5), sharex=True)
+fig, ax = plt.subplots(figsize=(12, 4), sharex=True)
 plt.subplots_adjust(wspace=0.3)
 plot_dict = {"121": "ned", "122": "wg_c"}
 
