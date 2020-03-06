@@ -54,6 +54,7 @@
 \numberwithin{equation}{section}
 \numberwithin{figure}{section}
 \numberwithin{table}{section}
+\numberwithin{algorithm}{section}
 
 % Customise algorithms.
 \algnewcommand\Stepone{\item[\textbf{Step 1:}]}
@@ -92,7 +93,7 @@ To identify the treatment effect in Regression Discontinuity Designs, non-parame
 \section{Theoretical Framework of Regression Discontinuity Design} % (fold)
 \label{sec:framework}
 
-Assume that we want to uncover the effect of a binary treatment $ D_{i} \in \lbrace 0,1 \rbrace $ on an outcome of interest $Y_{i}$, where $Y_{i}$(1) and $Y_{i}$(0) denote the potential outcomes if individual $i$ receives treatment or not, respectively, as defined by \cite{rubin}. Let $R_{i}$ be a pre-treatment variable -- the \textit{running variable} -- determining assignment to treatment for each individual. We restrict our attention to sharp RDDs where participation in the treatment is mandatory and treatment is granted to those whose value of the running variable passes a fixed \textit{cutoff} $c$: $D_{i} = \mathds{1}_{R_{i} \geq c}$
+Assume that we want to uncover the causal effect of a binary treatment $ D_{i} \in \lbrace 0,1 \rbrace $ on an outcome of interest $Y_{i}$, where $Y_{i}$(1) and $Y_{i}$(0) denote the potential outcomes if individual $i$ receives treatment or not, respectively, as defined by \cite{rubin}. Let $R_{i}$ be a pre-treatment variable -- the \textit{running variable} -- determining assignment to treatment for each individual. We restrict our attention to sharp RDDs where participation in the treatment is mandatory and treatment is granted to those whose value of the running variable passes a fixed \textit{cutoff} $c$: $D_{i} = \mathds{1}_{R_{i} \geq c}$
 
 Moreover, we assume continuity of the conditional regression functions $\mathbb{E}\left[Y_{i}(0) \vert R_{i} = r\right]$ and  $\mathbb{E}\left[Y_{i}(1) \vert R_{i} = r\right]$ and continuity of the running variable's density $f_{R_{i}}(r)$ at $r=c$. Following \cite{hahn_et_al} we can then identify the average treatment effect as the size of the discontinuity in the conditional expectation of the outcome given the running variable at the cutoff:
 \begin{equation}
@@ -101,21 +102,148 @@ Moreover, we assume continuity of the conditional regression functions $\mathbb{
 \end{equation}
 
 
-\input{estimation_section}
+
+\section{Treatment Effect Estimation} % (fold)
+\label{sec: estim}
+
+To estimate the causal effect we want to fit a regression function to the data at hand. Here, we disregard any covariates and regressor values stem from the treatment indicator $D$, running variable $R$ and polynomials thereof. Essentially, we are interested in the difference of the regression function's values when approaching the cutoff from above vis-à-vis below and we allow the regression function to behave differently on the left and right side of the cutoff. Throughout our work, we estimate models of the following kind:
+\begin{equation}
+Y = \alpha + \tau D + f_{l}(R) + f_{r}(R) + \varepsilon .
+\label{eq: model_general}
+\end{equation}
+
+Under the identification assumptions \ref{eq: ident_ass}, $\tau$ recovers the causal effect. Further, $\alpha$ is the intercept and $\varepsilon$ constitutes the mean-zero idiosyncratic element. The functions $f_{l}$ and $f_{r}$ are our main objects of interest and we want to investigate how they affect the treatment effect estimate.
+
+Identifying causal effects in RDD applications relies by construction on a \textit{locational} feature in the data; treatment assignment discontinuously changes at a specific value of the running variable. This motivates our desire to fit the functional form of the true regression function, especially around the cutoff. In such a setting misspecification of functional forms emerges to be more severe as it may introduce biased estimates of the treatment effect (cf. \cite{lee_lemieux}). For intuition suppose the true functional form is nonlinear and we estimate it by means of a linear model. We can still recover a linear prediction which minimizes some criterion, say the sum of squared residuals. While the \textit{best} linear prediction relates to the entire data, at particular points in the regressor's domain we may still be left with serious specification errors. In a RDD study the cutoff may constitute such a specific point, and the estimate would be biased. To reduce specification errors, polynomials of the running variable may be included which can capture (specific) nonlinearities. However, it is not granted that bias due to a misspecified functional form vanishes. Again, note that in RDD the treatment effect inherits a sense of location as it is closely tied to the cutoff determining treatment assignment. Our aim is to get the functional form close to the cutoff right and it is not always clear that data far away from the cutoff can help us to achieve that. In fact, we need to be well informed about the underlying data-generating process to make a case for parametrically estimating the treatment effect using all data available. Hence, the estimation problem in RDD is widely considered to be addressed by nonparametric methods which relax functional form assumptions and pay closer attention to the treatment effect's locational feature by allowing to restrict data to the cutoff's vicinity (cf. \cite{hahn_et_al}) and \cite{lee_lemieux}).
+
+In the following, we formally introduce the parametric and non-parametric models for treatment effect estimation in Regression Discontinuity Design that we are going to compare against each other in our study.
+
+
+\subsection{Parametric Treatment Effect Estimation} % (fold)
+\label{sec: param}
+To estimate the treatment effect parametrically, we use standard OLS and allow for different functional forms on either side of the cutoff. We implement this by interacting the running variable (and polynomials thereof) with the treatment indicator. As common in RDD applications we center the running variable by subtracting the cutoff \cite{lee_lemieux}. The model for polynomial degree $p$ thus writes:
+\begin{equation}
+Y = \alpha + \tau D + \beta_{l} (R-c) + (\beta_{r} - \beta_{l}) (R-c) D + \dots + \gamma_{l} (R-c)^p + (\gamma_{r} - \gamma_{l}) (R-c)^p D \varepsilon .
+\label{eq: model_param}
+\end{equation}
+
+In our simulation study and real data application we estimate models with zero up to four polynomial degrees. A model of zero degree simply returns the difference in means of all individuals below and above the cutoff.
+
+
+\subsection{Non-Parametric Treatment Effect Estimation} % (fold)
+\label{sec: non-param}
+To estimate the treatment effect non-parametrically, we rely on local linear regression which fits a linear model to a localised subset of the data and weighs the observations depending on their proximity to the point of interest. The weights are determined by a kernel function $K$ which assigns more weight to observations close to the point of interest. The size of the local neighbourhood used for estimation at a particular point is determined by a non-negative smoothing parameter, the bandwidth $h$.
+
+As stated by \cite{lee_lemieux}, the kernel function has little impact on the treatment effect estimate in practice. But as we are interested in estimating the regression functions at a boundary point -- the cutoff --, we use the boundary optimal triangular kernel $K(r) = \max \lbrace 0, 1 - \vert r \vert \rbrace$ (cf. \cite{cheng_et_al}).
+
+The choice of bandwidth is however more complicated. It restricts the data to be included in the estimation, thus controls the model complexity and involves a trade-off between bias and variance. If the bandwidth is too small we speak of an \textit{undersmoothed} bandwidth which leads to only few observations falling into the local neighbourhood. This results in small bias but large variance and an overfitted density function, highlighting spuriously fine data structures. If the bandwidth is too large however, the large amount of observations falling into the local neighborhood leads to small variance but potentially large bias and the density curve might miss important features of the data. In this case we refer to it as an \textit{oversmoothed} bandwidth. Thus, the bandwidth is a crucial ingredient of local linear regression and in the literature on Regression Discontinuity Designs, the following data-driven selection procedures are commonly used: Leave-one-out cross-validation and the rule-of-thumb bandwidth selection procedure by \cite{fan_gij}.
+
+Cross-validation is a procedure to select the optimal smoothing parameter of a regression model (in our case the bandwidth) by partitioning the sample into two subsets, using one to fit the data (the \textit{training set}) and the other one (the \textit{test set}) to test the accuracy of the prediction in terms of mean squared error. Leave-one-out cross-validation is a special case thereof where the test set is of size one, called the \textit{hold-out observation}. To get an estimate for the mean squared error in total, we repeat the procedure of holding-out one observation and predicting its value of the dependent variable again and again until each observation in the sample has served as a hold-out observation once. Conducting these steps for every smoothing parameter in a pre-specified grid, we in the end choose the one that achieves the lowest estimated mean squared error. To be applicable to Regression Discontinuity Designs, \cite{imb_lemieux} and \cite{ludwig_miller} developed a special version where the training set only consists of observations within the bandwidth of the hold-out-observation away from the cutoff. Like this, the hold-out observation mimics a boundary point and the selected bandwidth is more appropriate for the boundary estimation setting. Algorithm \ref{alg:cv} gives a detailed description of the cross-validation algorithm used in our study.
+
+\begin{algorithm}[H]
+	\caption{Cross-validation bandwidth selection}\label{alg:cv}
+	\begin{algorithmic}[1]
+		\Require $((R_{i}, Y_{i})_{i \in N}, c, grid) =$ (data on running and dependent variable, cutoff, grid of bandwidths)
+		\State $N_{grid} \gets$ number of observations in $grid$
+		\State Split the data $(R_{i}, Y_{i})_{i \in N}$ at $c$ into $(R_{i, -}, Y_{i, -})_{i \in N_{-}}$ and $(R_{i, +}, Y_{i, +})_{i \in N_{+}}$
+		\State MSE $\gets$ $\left[ 0, \dots, 0 \right]$
+		\For{$j = 1, \dots, N_{grid}$}
+		\State $h \gets grid[j]$
+
+		\For{$k = 1, \dots, N_{-}$}
+		\State $R_{out} \gets R_{k, -}$
+		\State $Y_{out} \gets Y_{k, -}$
+		\State $\left(R_{train}, Y_{train}\right) \gets$ all observations of $(R_{i, -}, Y_{i, -})_{i \in N_{-}}$ with $R_{out}-h \leq R_{i, -} < R_{out}$
+		\State $Y_{predict} \gets$ predicted value of regression function at $R_{out}$ performing a local linear \newline
+		\mbox{}\phantom{\textbf{forall} \itshape(} regression with the triangle kernel and bandwidth $h$ of $Y_{train}$ on $R_{train}$
+		\State MSE$[j] \gets$ MSE$[j] + \left( Y_{out} - Y_{predict} \right)^{2}$
+		\EndFor
+
+		\For{$k = 1, \dots, N_{+}$}
+		\State $R_{out} \gets R_{k, +}$
+		\State $Y_{out} \gets Y_{k, +}$
+		\State $\left(R_{train}, Y_{train}\right) \gets$ all observations of  $(R_{i, +}, Y_{i, +})_{i \in N_{+}}$ with $R_{out} < R_{i, +} \leq R_{out}+h $
+		\State $Y_{predict} \gets$ predicted value of regression function at $R_{out}$ performing a local linear \newline
+		\mbox{}\phantom{\textbf{forall} \itshape(} regression with the triangle kernel and bandwidth $h$ of $Y_{train}$ on $R_{train}$
+		\State MSE$[j] \gets$ MSE$[j] + \left( Y_{out} - Y_{predict} \right)^{2}$
+		\EndFor
+		\EndFor
+		\State $h_{opt} \gets$ value of $grid$ where MSE is minimal
+		\State \textbf{return} $h_{opt}$
+	\end{algorithmic}
+\end{algorithm}
+
+The rule-of-thumb bandwidth selection procedure developed by \cite{fan_gij} for the context of local linear regressions is also based on the concept of mean squared error. But as opposed to cross-validation, the idea here is to start with a formula for the optimal bandwidth in terms of an optimal degree of bias and precision and then plug in estimates of unknown quantities. The adaptation to the RDD setting which we use has been performed by \cite{imbens_kalyanaraman} and is described in Algorithm \ref{alg:rot}.
+
+\begin{algorithm}
+	\caption{Rule-of-thumb bandwidth selection}\label{alg:rot}
+	\begin{algorithmic}[1]
+		\Require $((R_{i}, Y_{i})_{i \in N}, c) =$ (data on running and dependent variable, cutoff)
+		\Stepone Estimation of density and conditional variance.
+		\State $\sigma^{2}_{R} \gets \frac{1}{N-1} \sum_{i=1}^{N} (R_{i} - \bar{R})^{2}$
+		\State $h_{1} \gets 1.84 \cdot \sigma_{R} \cdot N^{-1/5}$
+		\State $N_{h_{1}, -} \gets \sum_{i=1}^{N} \mathds{1}_{c-h_{1} \leq R_{i} < c}$
+		\State $N_{h_{1}, +} \gets \sum_{i=1}^{N} \mathds{1}_{c \leq R_{i} \leq c+h_{1}}$
+		\State $\bar{Y}_{h_{1}, -} \gets \frac{1}{N_{h_{1}, -}} \left(\sum_{i: c-h_{1} \leq R_{i} < c} Y_{i} \right)$
+		\State $\bar{Y}_{h_{1}, +} \gets \frac{1}{N_{h_{1}, +}} \left(\sum_{i: c \leq R_{i} \leq c+h_{1}} Y_{i} \right)$
+		\State $\widehat{f}_{R}(c) \gets \frac{N_{h_{1}, -} + N_{h_{1}, +}}{2 \cdot N \cdot h_{1}}$ {\color{blue} \Comment{Estimate of the density of $R_{i}$ at $c$}}
+		\State $\widehat{\sigma}^{2}(c) \gets \frac{1}{N_{h_{1}, -} + N_{h_{1}, +}} \left( \sum_{c-h_{1} \leq R_{i} < c} \left( Y_{i} - \bar{Y}_{h_{1}, -}\right)^{2} + \sum_{i: c \leq R_{i} \leq c+h_{1}} \left( Y_{i} - \bar{Y}_{h_{1}, +} \right)^{2} \right)$
+		\newline {\color{blue} \Comment{Estimate of the conditional variance of $Y_{i}$ given $R_{i}=r$ at $r=c$}}
+
+		\Steptwo Estimation of second derivatives.
+		\State $N_{-} \gets$ number of observations with $R_{i} < c$
+		\State $N_{+} \gets$ number of observations with $R_{i} \geq c$
+		\State $median(R_{-}) \gets$ median of observations with $R_{i} < c$
+		\State $median(R_{+}) \gets$ median of observations with $R_{i} \geq c$
+		\State Temporarily discard observations with $R_{i} < median(R_{-})$ or $R_{i} > median(R_{+})$ and estimate the regression function \newline $Y_{i} = \alpha_{0} + \alpha_{1} \cdot \mathds{1}_{R_{i} \geq c} + \alpha_{2} \cdot (R_{i}-c) + \alpha_{3} \cdot (R_{i}-c)^{2} + \alpha_{4} \cdot (R_{i}-c)^{3} + \varepsilon_{i}$
+		\State $\widehat{m}_{3}(c) \gets 6 \cdot \widehat{\alpha}_{4}$
+		\State $h_{2, -} \gets 3.56 \left( \frac{\widehat{\sigma}^{2}(c)}{\widehat{f}(c) \cdot \max\lbrace \left(\widehat{m}_{3}(c)\right)^{2}, 0.01\rbrace}\right)^{1/7} N_{-}^{-1/7}$
+		\State $h_{2, +} \gets 3.56 \left( \frac{\widehat{\sigma}^{2}(c)}{\widehat{f}(c) \cdot \max\lbrace \left(\widehat{m}_{3}(c)\right)^{2}, 0.01\rbrace}\right)^{1/7} N_{+}^{-1/7}$
+
+		\State $(R_{i, h_{2, -}}, Y_{i, h_{2, -}}) \gets$ observations with $c-h_{2, -} \leq R_{i} < c$
+		\State $(R_{i, h_{2, +}}, Y_{i, h_{2, +}}) \gets$ observations with $c \leq R_{i} \leq c+h_{2, +}$
+		\State $N_{h_{2}, -} \gets$ number of observations with $c-h_{2, -} \leq R_{i} < c$
+		\State $N_{h_{2}, +} \gets$ number of observations with $c \leq R_{i} \leq c+h_{2, +}$
+		\State Estimate the regression function  $Y_{i, h_{2,-}} = \beta_{0} + \beta_{1} (R_{i, h_{2, -}}-c) + \beta_{2} (R_{i, h_{2, -}}-c)^{2} + \epsilon_{i}$
+		\State $\widehat{m}^{(2)}_{-}(c) \gets 2 \cdot \widehat{\beta}_{2}$ {\color{blue} \Comment{Estimate of the curvature of the regression function left of $c$}}
+		\State Estimate the regression function  $Y_{i, h_{2,+}} = \gamma_{0} + \gamma_{1} (R_{i, h_{2, +}}-c) + \gamma_{2} (R_{i, h_{2, +}}-c)^{2} + \epsilon_{i}$
+		\State $\widehat{m}^{(2)}_{+}(c) \gets 2 \cdot \widehat{\gamma}_{2}$ {\color{blue} \Comment{Estimate of the curvature of the regression function right of $c$}}
+
+		\Stepthree Calculation of regularisation terms and optimal bandwidth.
+		\State $\widehat{r}_{-} \gets$ $\frac{720 \cdot \widehat{\sigma}^{2}(c)}{N_{h_{2}, -} \cdot h_{2, -}^{4}}$
+		\State $\widehat{r}_{+} \gets$ $\frac{720 \cdot \widehat{\sigma}^{2}(c)}{N_{h_{2}, +} \cdot h_{2, +}^{4}}$
+		\State $h_{opt} \gets 3.4375 \cdot \left(\frac{2 \cdot \widehat{\sigma}^{2}}{\widehat{f}(c) \cdot \left( \left( \widehat{m}^{(2)}_{+}(c) - \widehat{m}^{(2)}_{-}(c) \right)^{2} + \left( \widehat{r}_{+} + \widehat{r}_{-} \right) \right)}\right) \cdot N^{-1/5}$
+		\State \textbf{return} $h_{opt}$
+	\end{algorithmic}
+\end{algorithm}
+
+Using these procedures to select the bandwidth $h$, for the actual treatment effect estimation we follow the widely used approach by \cite{fan_gij} and transform the problem into a standard weighted least squares problem where weights are determined by the kernel. According to \cite{lee_lemieux} we can then use the following pooled regression model and a weighted least squares regression to estimate the treatment effect non-parametrically:
+\begin{align}
+Y = \alpha + & \tau D + \beta_{l} (R-c) + (\beta_{r} - \beta_{l}) (R-c) D + \varepsilon \\
+&\text{ where } c - h \leq R \leq c + h. \nonumber
+\label{eq: model_non_param}
+\end{align}
+
+
+Parametric and non-parametric treatment effect estimation, as presented here, are fundamentally different since non-parametric methods relax functional form assumptions, constrain the dataset and face different statistical properties. However, in a sense, the non-parametric model can be understood as a generalization of the parametric model since for given data where each observation is weighted equally and when the bandwidth coincides with the regressor's support the non-parametric and parametric model are in fact the same. Hence, parametric and non-parametric approaches are sometimes called \textit{global} and \textit{local} methods, respectively. That being said, we discuss the trade-offs between these two methods and highlight them in our simulation study and real data application in Sections \ref{sec:sim_study} and \ref{sec: data_application}, respectively.
 
 
 \section{Simulation Study} % (fold)
 \label{sec:sim_study}
 
-
-\input{simulation_study}
+We set up a simulation study to assess the performance of global parametric and local non-parametric methods along the bias and precision trade-off for the RDD treatment effect estimate. All estimators are challenged for three different data-generating processes (DGPs). The first DGP is based on a linear model, the second wave of datasets stem from a polynomial process of order four, and finally we relate the running variable and outcomes with a combination of sinus, co-sinus and polynomial functions. Randomness is introduced by an idiosyncratic element drawn from a mean-zero normal distribution with fixed variance. The DPGs are illustrated by Figure \ref{fig: dgp} where a random noise component with very small variance is specified and observations are collapsed into bins containing averages for reasons of illustration.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=\textwidth]{../../out/figures/simulation_study/simulated_rdd_graphs.png}
 	\caption{\textsc{Visualisation of Data-Generating Process}}
 	\label{fig: dgp}
+	\medskip
+	\justify
+	\footnotesize{Notes: ???}
 \end{figure}
+
+Our results are based on 250 randomly drawn datasets (Monte Carlo repetitions) per DGP with 500 observations. Aside from the average estimated treatment effects, we compute the estimates' standard deviation over all Monte Carlo repetitions, coverage probability and mean squared error. Note that the mean squared error is computed with respect to the estimated and true treatment effect and is not to be confused with the mean squared error computed in the cross-validation procedure. The coverage probability informs us about the share of estimate's 95-percent confidence bands which cover the true treatment effect. Repeating the simulation infinitely many times, the coverage probability of an unbiased estimator approaches 95 percent if the significance level is chosen to be five percent. While we can infer information on the asymptotic bias the coverage probability does not inform us about the estimator's precision -- i.e. an imprecisely measured coefficient has larger confidence intervals which will likely (here, with an observed share of 95 percent if it is estimated without bias) cover the true coefficient. Parametric treatment effect estimation is conducted for models with polynomial degrees varying from zero\footnote{For a model of polynomial degree of zero the treatment effect estimate is a simple difference in means of outcomes left vis-à-vis right of the cutoff.} to five. For local linear regression we report results for different bandwidths based on leave-one-out cross-validation, the rule-of-thumb selection procedure and 50 percent under- as well as 200 percent oversmoothing thereof. Note that 50 and 200 percent of the rule-of-thumb bandwidth correspond to the grid's lower and upper bound where the cross-validation bandwidth is chosen from.
 
 \begin{table}[H]
 	\begin{subtable}{\textwidth}
@@ -140,8 +268,14 @@ Moreover, we assume continuity of the conditional regression functions $\mathbb{
 	\end{subtable}
 	\caption{\textsc{Performance of Global Polynomial Estimators}}
 	\label{tab: perf_para}
+	\medskip
+	\justify
+	\footnotesize{Notes: Monte Carlo simulation with 250 draws per DGP, each with 500 observations. The treatment effect is estimated by fitting global polynomials to the data, allowing for varying coefficients on either side of the cutoff. The estimate corresponds to the mean of the 250 treatment effect estimates. The standard deviation and mean squared error are computed over all 250 draws.}
 \end{table}
 
+Table \ref{tab: perf_para} shows results for parametrically estimating the treatment effect for data coming from the three DGPs. As expected the linear global model is well suited to recover the treatment effect of .75, and so are higher order polynomials -- this is foremost the case since higher order polynomial models comprise the (true) linear model as a special case. The respective coverage probabilities hover around the expected value of 95 percent and we would need to increase the Monte Carlo simulations to approach .95 precisely. In line with econometric theory the standard deviation and mean squared error as measures on precision increase in value with every extra polynomial specification [SOURCE?]. Simply comparing means unsurprisingly overestimates the treatment effect since we have a larger slope coefficient on the cutoff's right side. Panel (b) of Table \ref{tab: perf_para} exhibits results for the \textit{polynomial} DGP and we see that starting with the cubic model higher order polynomials estimate the treatment effect consistently. As was noted before, increasing the number of regressors through additional polynomials makes the treatment effect estimate less precise indicated by larger standard deviations and mean squared errors. The linear and quadratic specification perform rather poorly exhibiting large bias and variance. The drawbacks of inflexible functional form assumptions and the restriction to regard all data globally become apparent by glancing at results in Panel (c). While the linear and cubic model are already off by quite a bit, other parametric specifications are not able to resemble their estimates around the true value. Without prior knowledge of the true data-generating process the researcher may collect visual signs of the observed data but can hardly be guided by the present results.
+
+Similarly, we collect performance measures for estimates from local linear regression for four bandwidths in Table \ref{tab: perf_nonpara}. When consulting the results, three observations claim attention. First, restricting the data through the bandwidth pays off in terms of bias. The rule-of-thumb, its undersmoothed companion and the cross-validated bandwidth all lead to consistent results in terms of estimated average treatment effects, with its strongest game for the linear model -- perhaps not to the reader's surprise as we locally fit a linear model. Only the oversmoothed rule-of-thumb bandwidth struggles to assist the estimator to recover on average the true treatment effect, in the polynomial and non-parametric DGPs. Second, the coverage probabilities across models and DGPs lacks behind the targeted 95 percent. The fact that common test-statistics derived from non-parametric methods are oftentimes not correctly centered is well-known (cf. \cite{wasserman}).\footnote{When a mean squared error optimal bandwidth is chosen, most test statistics suffer from an asymptotic bias which is usually corrected by undersmoothing or by estimating the bias directly. Hence, we require two bandwidths, one for estimation and one for testing.} Third, a larger bandwidth increases precision and tends to introduce bias. To make this claim we compare the undersmoothed against the oversmoothed rule-of-thumb bandwidth and notice that both precision measures are smaller choosing a larger bandwidth. This comes at the cost of introducing bias in the estimate for the second and third DGP. For the first DGP the bias is not present since the underlying true model is linear throughout, and we notice that the estimates with the larger bandwidth are on average more precise. In fact, when comparing the results from the local linear and the global linear model (for the linear DGP) we find that the global linear model is most precise -- it uses the maximum amount of data by construction.
 
 \begin{table}[H]
 	\begin{subtable}{\textwidth}
@@ -166,8 +300,12 @@ Moreover, we assume continuity of the conditional regression functions $\mathbb{
 	\end{subtable}
 	\caption{\textsc{Performance of Local Linear Regression}}
 	\label{tab: perf_nonpara}
+	\medskip
+	\justify
+	\footnotesize{Notes: Monte Carlo simulation with 250 draws per DGP, each with 500 observations. The treatment effect is estimated with local linear regression using leave-one-out cross-validation, the rule-of-thumb selection procedure and 50 percent under- as well as 200 percent oversmoothing thereof -- indicated as rot\_under and rot\_over. The estimate corresponds to the mean of the 250 treatment effect estimates. The standard deviation and mean squared error are computed over all 250 draws.}
 \end{table}
 
+Further, we investigate how both parametric and non-parametric methods perform in a setting with discrete data since in practice -- and particular in the case of RDD applications -- information is tied to scores and categories (e.g. imagine a social program tied to a poverty score). To discretize data we implement a binning technique found in \cite{mccrary_2008} which ensures that no bin contains observations from both sides of the RDD cutoff. We restrict ourselves to data from the linear DGP and draw 500 and 200 observations which are subsequently binned into around 60 and 35 bins, respectively. These bins form the observations available for estimation where the bin midpoints are regressor values and the arithmetic mean of observations falling into each bin serves as the response variable. Thus, the number of observations available for estimation is starkly reduced and the density mass becomes uniformly distributed. We present the results of this exercise in the Appendix. They reveal that both parametric and non-parametric methods manage to still consistently estimate the treatment effect but with less precision. The reduced number of observations puts its toll on the standard deviation and mean squared error over all Monte Carlo repetitions, and is consequently worse for the initial 200 compared to the initial 500 observations. The binning's effect per-se does not lead to higher precision since the less observations are in the proximity of the cutoff (note that the cutoff lies at the normal distribution's mean). Non-parametric methods are therefore more exposed to this issue, and [SOURCE] argues that estimation at boundary points may be adversely affected since asymptotic properties do not hold if the number of observations near the cutoff does not increase when shrinking the bandwidth. <- DOUBLE CHECK
 
 \begin{table}[H]
 	\begin{subtable}{\textwidth}
@@ -191,28 +329,138 @@ Moreover, we assume continuity of the conditional regression functions $\mathbb{
 		\label{tab: bw_perf_nonparam}
 	\end{subtable}
 	\caption{\textsc{Performance of Bandwidth Selection Procedures}}
+	\label{tab: bw_perf}
+	\medskip
+	\justify
+	\footnotesize{Notes: Monte Carlo simulation with 250 draws per DGP, each with 500 observations. Minimum, maximum, mean and standard deviation are computed across all 250 draws for each of the bandwidth procedures.}
 \end{table}
 
 
+To compare the bandwidth selection procedures and the numeric values that they select in more detail, Table \ref{tab: bw_perf} reports measures of descriptive statistics across the 250 Monte Carlo repetitions considered. We can see that depending on the underlying data generating process, the values that are selected by the rule-of-thumb and cross-validation procedure follow different patterns. For the linear DGP, the rule-of-thumb procedure tends to select far smaller bandwidths than cross-validation on average and also the standard deviation of all the values selected lies below the cross-validated ones. Cross-validation has a larger standard deviation in this case, also indicated by the minimum and maximum lying far apart which gives rise to the supposition that a significantly different bandwidth is selected in every run. For the polynomial DGP however, the means of the values selected are quite close to each other, the standard deviation is significantly reduced, in particular when using cross-validation which now lies below the one of the rule-of-thumb procedure. Finally, when considering the non-parametric DGP, the standard deviation of bandwidths selected by cross-validation shrinks further and also the mean of the values selected lies a bit below the ones of the rule-of-thumb procedure. A key result of this analysis is that the more curved and non-linear the DGP, the smaller the average bandwidth selected by cross-validation which is an intuitive result as the features of the underlying regression function can be grasped better by fitting local models the further away the true function is from a linear one. For the rule-of-thumb bandwidth however, this pattern is less prevalent and the mean of the bandwidths selected rather stays at roughly the same low level with only a minor decrease from model one to three.
 
 
-\input{data_application}
+In all, we find in our simulation study that parametric methods are consistently estimating the treatment effect in scenarios where the true data-generating process is based on a polynomial relationship between the running variable and the outcome. They perform poorly for data with less structure, if no classic polynomials are involved or the regression model features too few polynomial degrees to cope with richer data structures. While non-parametric methods are capturing linear and polynomial relationships in data they really shine -- in comparison to global methods -- if the underlying data-generating processes become more involved. Choosing a smaller bandwidth improves consistency at the cost of precision. The key take-away from this investigation is: local methods face less risk of introducing bias to estimates and can handle more complex data structures. However, if the underlying data-generating process is well-known tailored global methods may be used to increase precision.
 
 
-\input{conclusion}
+
+\section{Data Application} % (fold)
+\label{sec: data_application}
+
+To compare the performance of the above considered parametric and non-parametric estimation methods in large samples and real world applications, we use the labour market study of \cite{nekoei_weber} that exploits an aged-based Regression Discontinuity Design to estimate the effects of extended unemployment benefits on non-employment duration and re-employment wages, respectively.
+
+The study exploits a special feature of the Austrian unemployment insurance system. Normally, workers who have been employed for 3 years during the last 5 years up to the layoff date are eligible for 30 weeks of unemployment benefits. But since August, 1, 1989, once their age passes the cutoff of 40 years at the time of layoff, the workers are eligible for a benefit extension to 39 weeks, provided they have worked for 6 years during the last 10 years. The cutoff at the age of 40 thus creates a natural distinction between treatment and control groups.
+
+For their empirical analysis, the authors combine two different datasets. The Austrian Social Security Database provides daily employment records and annual earnings by employer for all private sector employees. These are matched with Austrian Unemployment Registers at the individual level that include data on unemployment spells and benefit receipts. Furthermore, the sample is restricted to workers aged 30 to 50 years who have been laid off after the introduction of the law on August, 1, 1989 and are eligible for extended unemployment benefits provided their age passes the cutoff. So all in all, the data set used for the analysis comprises 1,738,787 individual observations between 1989 and 2011.
+
+The variables that we need in our application are measured as follows. The running variable \textit{age} is defined as the exact age at the date of layoff up to five decimal places. \textit{Non-employment duration} is measured as the number of days between the end of a lost job and the start of a new job. The \textit{daily wage rate} is defined as the worker's annual earnings per employer divided by the number of days he has worked for him. It is then used to compute the \textit{wage change} between pre- and post-unemployment jobs as the log difference between the daily wage in the year of separation and in the year when the new job starts.
+
+In order to get a first intuition of the setting, Figure \ref{fig: estim_ui_benefits} plots the running variable age, grouped in quarterly age groups, against the average of the variables non-employment duration and wage change in these groups, respectively. We further add the fitted lines of quadratic polynomials to get a better sense of a potential discontinuity gap. Indeed, both panels give a first evidence of a discontinuity gap in the conditional expectation of the outcomes given the running variable at the cutoff of 40 years. Both the effect of extended unemployment benefits on non-employment duration and wage change seem to be positive.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{../../out/figures/data_analysis/rdd_graphs.png}
+	\caption{\textsc{Non-Employment Duration and Wage Change as a Function of Age}}
+	\label{fig: estim_ui_benefits}
+	\medskip
+	\justify
+	\footnotesize{Notes: The variable age is grouped in bins covering 4 months and the average value in these groups is plotted against the average value of the outcome variable. A quadratic fit is added to the data. The outcome variable in Panel (a) is non-employment duration, measured as the number of days between two consecutive jobs. The outcome variable in Panel (b) is wage change, computed as the log difference between the daily wage in the year of separation and in the year when the new job starts.}
+\end{figure}
+
+To assess the effect in more detail and to compare the performance of our studied methods, Table \ref{tab: estim_ui_benefits} contains estimation results for both outcome variables using global polynomials of degree 0 to 4 and local linear regressions with the bandwidth selection procedures described in Section \ref{sec: estim}. The grid of bandwidths used as an input parameter in the cross-validation algorithm takes the rule-of-thumb bandwidth as a reference and contains 32 equally spaced values ranging from a minimum of half of the rule-of-thumb-bandwidth up to a maximum value of 10. Thereby, a value of 10 corresponds to taking the whole range of data into account. As the data set contains more than 1.5 million observations, the computationally expensive leave-one-out cross-validation cannot be performed with all observations as described in Algorithm \ref{alg:cv}. As a solution, we randomly sample 2000 observations within a range of 3 years near the cutoff to which the cross-validation algorithm is then applied. The results in Table \ref{tab: estim_ui_benefits} reveal that depending on the outcome of interest, the different parametric and non-parametric methods reveal different treatment effect estimates.
+
+
+\begin{table}[H]
+	\centering
+	\hspace{\fill}
+	\input{../../out/tables/data_analysis/reproduce_main_results_table_2.tex}
+	\caption{\textsc{Estimated Effect of Unemployment Benefit Extension}}
+	\label{tab: estim_ui_benefits}
+	\medskip
+	\justify
+	\footnotesize{Notes: The treatment effect is estimated parametrically using global polynomial fitting with varying coefficients on either side of the cutoff and polynomial degrees of order 0 to 4 as well as non-parametrically using local linear regression with bandwidths selected with leave-one-out cross-validation or the rule-of-thumb procedure. The standard errors stem from pooled regressions.}
+\end{table}
+
+The effect of extended unemployment benefits on non-employment duration is estimated at an average of one to two days, indicating that people receiving unemployment benefits for a longer time period are tending to stay unemployed for a longer spell as well. The results for polynomials of degree 0 to 2 and the non-parametric methods are significant at the 1-percent level, whereas the results for polynomials of order 3 and 4 are only significant at the 5- and 10-percent level, respectively. As already revealed in our simulation study, the standard errors for global polynomial fitting increase with the degree of polynomial used, explaining the larger p-values. Comparing the non-parametric methods, the two bandwidth selection procedures used lead to slightly different estimation results, as the treatment effect estimated with local linear regression and the bandwidth selected by cross-validation leads to a smaller estimate and standard error.
+
+The effect of extended unemployment benefits on the log difference between daily wages in the old and new job is estimated positively as well at an average of 0.004 for global polynomials of degree 1 to 3 and local linear regression using the bandwidth selected by cross-validation. This means, that the re-employment wage is estimated as on average 0.4$\%$ higher for people receiving extended unemployment benefits. The p-values are far larger such that only the polynomial degrees of order 0 to 2 return estimates significant at the 1-percent level. A treatment effect estimation in terms of comparison in means is far off again and even estimates the effect to be negative. Interestingly, when comparing the non-parametric estimation methods, the rule-of-thumb bandwidth selection procedure performs quite differently. It estimates the effect to be nearly zero and is clearly not significant at any conventional level.
+
+As the treatment effect estimates reveal some differences when using the rule-of-thumb bandwidth selection procedure compared to cross-validation in local linear regression, Figure \ref{fig: bw_perf} finally compares the numeric values of the bandwidths selected and plots the treatment effect estimates as well as the 95-percent confidence intervals as a function of the bandwidth. We see that cross-validation always selects the largest possible bandwidth of 10 whereas the rule-of-thumb procedure leads to significantly smaller bandwidths -- 4.64 when estimating the effect on non-employment duration and 1.01 when estimating the effect on re-employment wage. For the outcome non-employment duration, the treatment effect estimated non-parametrically with any of the considered bandwidths always ranges between the one estimated with a global linear model and the one estimated with a quadratic polynomial. It slightly increases as a function of the bandwidth until a value of about 6 and then starts marginally decreasing again. When estimating the effect on wage change however, there is a sharp decrease followed by a sharp increase in the treatment effect estimate for small bandwidths and afterwards at a bandwidth of about 2, the estimate stabilises at the value predicted by the global linear and quadratic models as well. In this setting, the rule-of-thumb bandwidth is close to the value minimising the treatment effect estimate.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{../../out/figures/data_analysis/treatment_effect_estimates.png}
+	\caption{\textsc{Performance of Local Linear Regression with Different Bandwidths.}}
+	\label{fig: bw_perf}
+	\medskip
+	\justify
+	\footnotesize{Notes: The bandwidth used in local linear regression is plotted against the corresponding treatment effect estimate and 95-percent confidence intervals. The outcome variable in Panel (a) is non-employment duration, measured as the number of days between two consecutive jobs. The outcome variable in Panel (b) is wage change, computed as the log difference between the daily wage in the year of separation and in the year when the new job starts.}
+\end{figure}
+
+These findings again highlight that depending on the underlying data generating process, the estimated treatment effect may depend on the method used and among non-parametric methods also the bandwidth may have a significant impact. Therefore, it is very important to be not too restrictive when choosing the model used for estimation and possibly even report results or various procedures that are in accordance with the visual appearance of the data at hand.
+
+
+
+\section{Conclusion} % (fold)
+\label{sec: conclusion}
+
+
+
+The principle trade-off emerges along bias and precision. As stated above, misspecifying the functional form can introduce bias in the treatment estimate in RDD, and we expect flexible non-parametric methods to be better suited to avoid bias. This potential advantage if surely more leveraged in data structures that exhibit stark non-linearities which are hard to capture with polynomial specifications. If we on the other hand are well informed about the true process that generated the data, a treatment effect estimated by a parametric model may not suffer from specification error. In that case, it may even be advisable to use a parametric model as it potentially yields more precise estimates, simply because all data available are used. Also, in settings with very few observations global methods may outperform non-parametric methods as the latter rely on more observations due to their slower convergence rates.
+
 
 
 % Add references.
 \clearpage
 \bibliography{refs}
+\clearpage
+
+% Start fresh labels for Appendix.
+\setcounter{section}{1}
+\renewcommand\thesubsection{\Alph{subsection}}
+\renewcommand\thetable{\Alph{section}.\arabic{table}}
+
+\section*{\LARGE Appendix}
+\subsection{Results for Discrete Data (Simulation Study)} \label{discrete_data}
 
 
+\begin{table}[H]
+	\begin{subtable}{\textwidth}
+		\centering
+		\input{../../out/tables/simulation_study/perf_meas_table_linear_p_discr_500.tex}
+		\caption{500 Observations, linear data-generating process}
+		\label{tab: global_poly_500}
+		\hspace{\fill}
+	\end{subtable}
+	\begin{subtable}{\textwidth}
+		\centering
+		\input{../../out/tables/simulation_study/perf_meas_table_linear_p_discr_200.tex}
+		\caption{200 Observations, linear data-generating process}
+		\label{tab: global_poly_200}
+		\hspace{\fill}
+	\end{subtable}
+	\caption{\textsc{Performance of Global Polynomial Estimators on Discrete Data}}
+	\label{tab: perf_para_discr}
+\end{table}
 
 
-% \appendix
+\begin{table}[H]
+	\begin{subtable}{\textwidth}
+		\centering
+		\input{../../out/tables/simulation_study/perf_meas_table_linear_np_discr_500.tex}
+		\caption{500 Observations, linear data-generating process}
+		\label{tab: llr_500}
+		\hspace{\fill}
+	\end{subtable}
+	\begin{subtable}{\textwidth}
+		\centering
+		\input{../../out/tables/simulation_study/perf_meas_table_linear_np_discr_200.tex}
+		\caption{200 Observations, linear data-generating process}
+		\label{tab: llr_200}
+		\hspace{\fill}
+	\end{subtable}
+	\caption{\textsc{Performance of Local Linear Regression on Discrete Data}}
+	\label{tab: perf_nonpara_discr}
+\end{table}
 
-% The chngctr package is needed for the following lines.
-% \counterwithin{table}{section}
-% \counterwithin{figure}{section}
 
 \end{document}
