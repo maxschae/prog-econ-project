@@ -7,8 +7,9 @@ from bld.project_paths import project_paths_join as ppj
 # Create plot for performance of different bandwidths.
 fig, ax = plt.subplots(figsize=(12, 4), sharex=True)
 plt.subplots_adjust(wspace=0.3)
-plot_dict = {"121": "ned", "122": "wg_c"}
 
+# Arrange plots for different outcome variables in subplots.
+plot_dict = {"121": "ned", "122": "wg_c"}
 for subplot in plot_dict.keys():
     data = pd.read_stata(
         ppj("OUT_TABLES", "data_analysis", f"plot_results_{plot_dict[subplot]}.dta")

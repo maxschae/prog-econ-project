@@ -7,7 +7,6 @@
 \usepackage{longtable, booktabs, tabularx}
 \usepackage{fancyvrb, moreverb, relsize}
 \usepackage{eurosym, calc}
-% \usepackage{chngcntr}
 \usepackage{amsmath, amssymb, amsfonts, amsthm, bm}
 \usepackage{dsfont}
 \usepackage{caption}
@@ -17,8 +16,6 @@
 \usepackage{xcolor}
 \usepackage{subcaption}
 \usepackage{minibox}
-% \usepackage{pdf14} % Enable for Manuscriptcentral -- can't handle pdf 1.5
-% \usepackage{endfloat} % Enable to move tables / figures to the end. Useful for some submissions.
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
 \usepackage{float}
@@ -112,7 +109,7 @@ Y = \alpha + \tau D + f_{l}(R) + f_{r}(R) + \varepsilon .
 \label{eq: model_general}
 \end{equation}
 
-Under the identification assumptions \ref{eq: ident_ass}, $\tau$ recovers the causal effect. Further, $\alpha$ is the intercept and $\varepsilon$ constitutes the mean-zero idiosyncratic element. The functions $f_{l}$ and $f_{r}$ are our main objects of interest and we want to investigate how they affect the treatment effect estimate.
+Under the identification assumptions \eqref{eq: ident_ass}, $\tau$ recovers the causal effect. Further, $\alpha$ is the intercept and $\varepsilon$ constitutes the mean-zero idiosyncratic element. The functions $f_{l}$ and $f_{r}$ are our main objects of interest and we want to investigate how they affect the treatment effect estimate.
 
 Identifying causal effects in RDD applications relies by construction on a \textit{locational} feature in the data; treatment assignment discontinuously changes at a specific value of the running variable. This motivates our desire to fit the functional form of the true regression function, especially around the cutoff. In such a setting misspecification of functional forms emerges to be more severe as it may introduce biased estimates of the treatment effect (cf. \cite{lee_lemieux}). For intuition suppose the true functional form is nonlinear and we estimate it by means of a linear model. We can still recover a linear prediction which minimizes some criterion, say the sum of squared residuals. While the \textit{best} linear prediction relates to the entire data, at particular points in the regressor's domain we may still be left with serious specification errors. In a RDD study the cutoff may constitute such a specific point, and the estimate would be biased. To reduce specification errors, polynomials of the running variable may be included which can capture (specific) nonlinearities. However, it is not granted that bias due to a misspecified functional form vanishes. Again, note that in RDD the treatment effect inherits a sense of location as it is closely tied to the cutoff determining treatment assignment. Our aim is to get the functional form close to the cutoff right and it is not always clear that data far away from the cutoff can help us to achieve that. In fact, we need to be well informed about the underlying data-generating process to make a case for parametrically estimating the treatment effect using all data available. Hence, the estimation problem in RDD is widely considered to be addressed by nonparametric methods which relax functional form assumptions and pay closer attention to the treatment effect's locational feature by allowing to restrict data to the cutoff's vicinity (cf. \cite{hahn_et_al}) and \cite{lee_lemieux}).
 
@@ -123,7 +120,7 @@ In the following, we formally introduce the parametric and non-parametric models
 \label{sec: param}
 To estimate the treatment effect parametrically, we use standard OLS and allow for different functional forms on either side of the cutoff. We implement this by interacting the running variable (and polynomials thereof) with the treatment indicator. As common in RDD applications we center the running variable by subtracting the cutoff \cite{lee_lemieux}. The model for polynomial degree $p$ thus writes:
 \begin{equation}
-Y = \alpha + \tau D + \beta_{l} (R-c) + (\beta_{r} - \beta_{l}) (R-c) D + \dots + \gamma_{l} (R-c)^p + (\gamma_{r} - \gamma_{l}) (R-c)^p D \varepsilon .
+Y = \alpha + \tau D + \beta_{l} (R-c) + (\beta_{r} - \beta_{l}) (R-c) D + \dots + \gamma_{l} (R-c)^p + (\gamma_{r} - \gamma_{l}) (R-c)^p D + \varepsilon .
 \label{eq: model_param}
 \end{equation}
 

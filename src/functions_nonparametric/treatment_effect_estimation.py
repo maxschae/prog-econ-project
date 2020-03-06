@@ -61,7 +61,7 @@ def estimate_treatment_effect_nonparametric(data, cutoff, bandwidth, alpha=0.05)
     y_weighted = y * sqrt_weights
     reg_results = sm.OLS(endog=y_weighted, exog=regressors_weighted).fit()
 
-    # Store results in a dictionary.
+    # Store estimation results in a dictionary.
     reg_out = {}
     reg_out["coef"] = reg_results.params[0]
     reg_out["se"] = reg_results.bse[0]

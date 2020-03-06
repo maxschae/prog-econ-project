@@ -85,6 +85,7 @@ def cross_validation(data, cutoff, h_grid, min_num_obs):
     else:
         pass
 
+    # Split data at the cutoff.
     data = data[["r", "y"]]
     data_left = np.array(data[data["r"] < cutoff])
     data_right = np.array(data[data["r"] >= cutoff])
@@ -96,13 +97,16 @@ def cross_validation(data, cutoff, h_grid, min_num_obs):
 
     mean_squared_errors = np.zeros_like(h_grid)
 
+    # Estimate mean squared error for every bandwidth in h_grid.
     for h_index, h in enumerate(h_grid):
         intermediate_res = 0
         runner_not_nan = 0
 
+        # Perform leave-one-out cross-validation separately for data to the left.
         for r_index, r_point in enumerate(data_left[:, 0]):
             training_data = np.delete(data_left, r_index, axis=0)
             training_data = training_data[training_data[:, 0] <= r_point]
+            # Predict outcome variable at the hold-out observation.
             if training_data.shape[0] >= min_num_obs:
                 y_hat = y_hat_local_linear(
                     x=training_data[:, 0],
@@ -110,6 +114,7 @@ def cross_validation(data, cutoff, h_grid, min_num_obs):
                     x0=r_point,
                     bandwidth=h,
                 )
+                # Update the mean squared error if predicted value is not nan.
                 if np.isnan(y_hat):
                     pass
                 else:
@@ -118,9 +123,11 @@ def cross_validation(data, cutoff, h_grid, min_num_obs):
             else:
                 pass
 
+        # Perform leave-one-out cross-validation separately for data to the right.
         for r_index, r_point in enumerate(data_right[:, 0]):
             training_data = np.delete(data_right, r_index, axis=0)
             training_data = training_data[training_data[:, 0] >= r_point]
+            # Predict outcome variable at the hold-out observation.
             if training_data.shape[0] >= min_num_obs:
                 y_hat = y_hat_local_linear(
                     x=training_data[:, 0],
@@ -128,6 +135,7 @@ def cross_validation(data, cutoff, h_grid, min_num_obs):
                     x0=r_point,
                     bandwidth=h,
                 )
+                # Update the mean squared error if predicted value is not nan.
                 if np.isnan(y_hat):
                     pass
                 else:
@@ -136,6 +144,7 @@ def cross_validation(data, cutoff, h_grid, min_num_obs):
             else:
                 pass
 
+        # Adjust mean squared error according to number of nan-predictions.
         if intermediate_res == 0:
             raise ValueError("The Kernel does never include any data.")
         else:

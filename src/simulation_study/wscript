@@ -43,14 +43,7 @@ def build(ctx):
         features="run_py_script",
         source="sim_study.py",
         deps=[
-            ctx.path_to(ctx, "SIMULATION_STUDY", "data_generating_process.py"),
             ctx.path_to(ctx, "SIMULATION_STUDY", "simulate_estimator_performance.py"),
-            ctx.path_to(ctx, "FUNCTIONS_PARAMETRIC", "treatment_effect_estimation.py"),
-            ctx.path_to(
-                ctx, "FUNCTIONS_NONPARAMETRIC", "treatment_effect_estimation.py"
-            ),
-            ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "rule_of_thumb.py"),
-            ctx.path_to(ctx, "FUNCTIONS_NONPARAMETRIC", "cross_validation.py"),
         ],
         target=[
             ctx.path_to(
@@ -100,18 +93,6 @@ def build(ctx):
                 "OUT_TABLES",
                 "simulation_study",
                 "perf_meas_table_nonparametric_np_discr_False.tex",
-            ),
-            ctx.path_to(
-                ctx,
-                "OUT_TABLES",
-                "simulation_study",
-                "perf_meas_table_linear_p_discr_True.tex",
-            ),
-            ctx.path_to(
-                ctx,
-                "OUT_TABLES",
-                "simulation_study",
-                "perf_meas_table_linear_np_discr_True.tex",
             ),
             ctx.path_to(
                 ctx,

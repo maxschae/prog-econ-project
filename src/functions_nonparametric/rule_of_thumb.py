@@ -23,6 +23,7 @@ def rule_of_thumb(data, cutoff):
         float: Mean squared error optimal rule-of-thumb bandwidth.
     """
 
+    # Split data at the cutoff.
     data = data[["r", "y"]]
     data_left = np.array(data[data["r"] < cutoff])
     data_right = np.array(data[data["r"] >= cutoff])
@@ -53,7 +54,7 @@ def rule_of_thumb(data, cutoff):
     y_mean_h_1_left = np.sum(data_h_1_left, axis=0)[1] / n_h_1_left
     y_mean_h_1_right = np.sum(data_h_1_right, axis=0)[1] / n_h_1_right
 
-    # Compute estimate of the running variables' density function at the cutoff.
+    # Compute estimate of the running variable's density function at the cutoff.
     f_hat = (n_h_1_left + n_h_1_right) / (2 * n * h_1)
 
     if f_hat <= 0:
@@ -94,7 +95,7 @@ def rule_of_thumb(data, cutoff):
     reg_results = np.linalg.lstsq(a=r_temp_powers, b=y_temp, rcond=None)
     m3_hat = 6 * reg_results[0][4]
 
-    # Compute bandwidths used for estimation of the regression function's curvature.
+    # Compute bandwidths used for estimation of the regression functions' curvature.
     h_2_left = (
         3.56
         * (sigma_hat / (f_hat * np.max([m3_hat ** 2, 0.01]))) ** (1 / 7)
