@@ -18,7 +18,6 @@ def set_project_paths(ctx):
     pp["FUNCTIONS_PARAMETRIC"] = "src/functions_parametric"
     pp["SIMULATION_STUDY"] = "src/simulation_study"
     pp["BLD"] = ""
-    pp["OUT_FINAL"] = f"{out}/out/final"
     pp["OUT_FIGURES"] = f"{out}/out/figures"
     pp["OUT_TABLES"] = f"{out}/out/tables"
 

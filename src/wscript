@@ -4,7 +4,7 @@
 def build(ctx):
     ctx.recurse("data_analysis")
     ctx.recurse("documentation")
-    ctx.recurse("final")
+    ctx.recurse("dependency_graph")
     ctx.recurse("functions_nonparametric")
     ctx.recurse("functions_parametric")
     ctx.recurse("simulation_study")
