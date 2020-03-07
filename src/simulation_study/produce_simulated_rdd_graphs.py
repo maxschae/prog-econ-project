@@ -10,7 +10,7 @@ from src.simulation_study.sim_study import fix_simulation_params
 np.random.seed(123)
 data_dict = {}
 
-for model in ["linear", "poly", "nonparametric"]:
+for model in ["linear", "poly", "nonpolynomial"]:
     # Draw data from each data generating process.
     sim_params = fix_simulation_params(
         n=500, M=100, model=model, discrete=False, cutoff=0, tau=0.75, noise_var=0.25
@@ -56,7 +56,7 @@ plt.subplots_adjust(wspace=0.3)
 
 # Specify subplot arrangement and outcome by
 # different data generating processes.
-plot_dict = {"131": "linear", "132": "poly", "133": "nonparametric"}
+plot_dict = {"131": "linear", "132": "poly", "133": "nonpolynomial"}
 
 for subplot in plot_dict.keys():
     plt.subplot(subplot)

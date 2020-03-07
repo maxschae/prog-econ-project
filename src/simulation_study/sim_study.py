@@ -19,7 +19,7 @@ def fix_simulation_params(
         n (int): Number of observations. Default is 500.
         M (int): Number of Monte Carlo repetitions. Default is 250.
         model (str): General functional form of the model that potential outcomes
-                underlie. Possibilities are "linear", "poly" and "nonparametric".
+                underlie. Possibilities are "linear", "poly" and "nonpolynomial".
                 Default is "linear".
         discrete (bool): Indication if data is discretized or not. Default is "False".
         cutoff (float): Cutpoint in the range of the running variable used to
@@ -37,8 +37,8 @@ def fix_simulation_params(
         raise TypeError("'n' and 'M' must be integer.")
     if isinstance(n, int) is False:
         raise TypeError("'n' must be integer.")
-    if model not in ["linear", "poly", "nonparametric"]:
-        raise ValueError("'model' takes 'linear', 'poly' or 'nonparametric' only.")
+    if model not in ["linear", "poly", "nonpolynomial"]:
+        raise ValueError("'model' takes 'linear', 'poly' or 'nonpolynomial' only.")
     if isinstance(discrete, bool) is False:
         raise TypeError("'discrete' must be type boolean.")
     else:
@@ -67,11 +67,11 @@ if __name__ == "__main__":
     for discrete in [False, True]:
 
         # Vary simulation along potential outcome models.
-        for model in ["linear", "poly", "nonparametric"]:
+        for model in ["linear", "poly", "nonpolynomial"]:
 
             if model == "poly" and discrete is True:
                 continue
-            elif model == "nonparametric" and discrete is True:
+            elif model == "nonpolynomial" and discrete is True:
                 continue
             else:
                 sim_params = fix_simulation_params(model=model, discrete=discrete)
@@ -198,6 +198,7 @@ if __name__ == "__main__":
                         df_bw_select["Max"][i] = np.max(bw_values)
                         df_bw_select["Mean"][i] = np.mean(bw_values)
                         df_bw_select["Std. Dev."][i] = np.std(bw_values)
+
                     df_bw_select = df_bw_select.round(3)
 
                     with open(

@@ -62,7 +62,7 @@ def data_generating_process(params):
             + np.random.normal(loc=0, scale=noise_var, size=n)
         )
 
-    elif model == "nonparametric":
+    elif model == "nonpolynomial":
         # Obtain potential outcomes through 'nonparametric' model.
         data["y"] = (
             tau * data["d"]
